@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PHYSICS - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #D0842F;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #D0842F;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #D0842F;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #D0842F;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #D0842F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #D0842F;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #D0842F;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #D0842F;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #D0842F;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">PHYSICS - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+
+  const tasks = [
+  "Which of these colours in the visible spectrum has the longest wavelength? A. Red B. Blue C. Yellow D. Violet",
+  "The power of a lens in diopters is given by: A. 3f B. 1/f C. 2f D. f",
+  "A man moves 6.0 m East and then 10.0 m N30ºE. How far is he from his starting point? A. 15.0 m B. 17.0 m C. 14.0 m D. 12.0 m",
+  "The density of water is 1 g/cm³ while that of ice is 0.9 g/cm³. Calculate the change in volume when 90 g of ice is completely melted. A. 9 cm³ B. 90 cm³ C. 0 cm³ D. 10 cm³",
+  "The graphical representation of the pressure law is always a straight line passing through the origin, only if the temperature scale is: A. Rankine B. Celsius C. Fahrenheit D. Thermodynamic (Kelvin)",
+  "According to the kinetic theory of gases, the pressure exerted by a gas on the walls equals: A. Momentum imparted to the walls per unit area B. Change in momentum per unit volume C. Change in momentum imparted to the walls per unit area D. Rate of change of momentum imparted to the walls per second per unit area",
+  "Which of the following is not true about a wave in a plucked string? A. It is mechanical B. It has a crest C. It is transverse D. It is longitudinal",
+  "The emf of a cell is the potential difference across its terminals when it is in: A. Series connection B. Closed circuit C. Open circuit D. Parallel connection",
+  "The thermometric property of mercury is based on the change in: A. Density with temperature B. Volume with temperature C. Pressure with temperature D. Resistance with temperature",
+  "Some of the features of the human eye that greatly help to refract light entering the eyes are: A. Cornea and lens B. Cornea and aqueous humor C. Lens and vitreous humor D. Aqueous humor and lens",
+  "The stress experienced by a wire of diameter d loaded by a weight W is: A. W/πd² B. 2W/πd² C. 4W/πd² D. 8W/πd²",
+  "Under which conditions is work done? A. A man supports a heavy load on his head with hands B. A woman holds a pot of water C. A boy climbs onto a table D. A man pushes against a stationary petrol tanker",
+  "Rainbow is formed when sunlight undergoes: A. Reflection B. Refraction C. Dispersion D. Diffraction",
+  "Find the value of a capacitor with voltage 5 V and charge 30 C. A. 7 F B. 6 F C. 15 F D. 0.17 F",
+  "When a bus is accelerating, it must be: A. Changing its speed B. Changing its velocity C. Changing its position D. Changing its direction",
+  "The friction due to air mass can be reduced by: A. Streamlining B. Lubricating C. Propeller D. Polishing",
+  "Which of the following operates based on magnetic effect of electric current? A. Electric heater B. Photocell C. Dynamo D. Cold cathode",
+  "When a charged ebonite rod is brought near a charged glass rod, there will be: A. Attraction B. Repulsion C. Spark D. No force experienced",
+  "Pilots use aneroid barometer to know the height above sea level because it is: A. Very accurate B. Small and convenient C. Heavy and huge D. Costly",
+  "Which of the following statements regarding the application of electrical conduction via gases is/are correct? (i) The identification of gases (ii) Lighting/fluorescent tubes (iii) Photocells (iv) Cathode ray oscilloscope/T.V. tubes A. (i), (iii) and (iv) only B. (i), (ii) and (iv) only C. (ii), (iii) and (iv) only D. (i), (ii) and (iii) only",
+  "A missile is launched with a speed of 75 ms⁻¹ at an angle of 22° above the surface of a warship. Find the horizontal range achieved by the missile. [Take g = 10 ms⁻²] A. 195 m B. 271 m C. 391 m D. 136 m",
+  "On a particular hot day, the temperature is 40°C and the partial pressure of water vapor in the air is 38.8 mmHg. What is the relative humidity? (Saturated vapor pressure at 40°C is approx 55.3 mmHg) A. 70% B. 62% C. 80% D. 42%",
+  "Which of the following represents the correct precision if the length of a piece of wire is measured with a meter rule? A. 35 mm B. 35.0 mm C. 35.00 mm D. 35.000 mm",
+  "A body of mass 5 kg is moving with a velocity of 10 m/s. Calculate its kinetic energy. A. 250 J B. 500 J C. 50 J D. 100 J",
+  "The SI unit of magnetic flux density is: A. Weber B. Tesla C. Henry D. Farad",
+  "A simple pendulum has a period of 2.0 s. What is its frequency? A. 0.5 Hz B. 1.0 Hz C. 2.0 Hz D. 4.0 Hz",
+  "The process by which a solid changes directly to a gas is called: A. Evaporation B. Sublimation C. Condensation D. Melting",
+  "Which of the following is a vector quantity? A. Speed B. Distance C. Displacement D. Mass",
+  "The escape velocity of a projectile from the Earth’s surface is approximately: A. 11.2 km/s B. 9.8 km/s C. 7.9 km/s D. 1.6 km/s",
+  "A convex mirror is used as a driving mirror because: A. It forms an erect and enlarged image B. It forms an erect and diminished image C. It forms a real and diminished image D. It has a narrow field of view",
+  "The fundamental frequency of a closed pipe is 100 Hz. What is the frequency of the next overtone? A. 200 Hz B. 300 Hz C. 400 Hz D. 500 Hz",
+  "Which of the following is a semiconductor? A. Copper B. Silicon C. Iron D. Aluminum",
+  "The half-life of a radioactive substance is 10 days. What fraction of the substance remains after 30 days? A. 1/2 B. 1/4 C. 1/8 D. 1/16",
+  "The resistance of a wire is 10 ohms. If its length is doubled and its area is halved, what is the new resistance? A. 10 ohms B. 20 ohms C. 40 ohms D. 5 ohms",
+  "Which of the following is an example of a transverse wave? A. Sound wave in air B. Light wave C. Ultrasonic wave D. Compression wave in a spring",
+  "The boiling point of water in the Fahrenheit scale is: A. 100°F B. 212°F C. 32°F D. 273°F",
+  "A force of 20 N acts on a body of mass 4 kg. Calculate the acceleration. A. 5 m/s² B. 80 m/s² C. 0.2 m/s² D. 16 m/s²",
+  "The instrument used to measure the relative density of a liquid is: A. Hydrometer B. Hygrometer C. Barometer D. Thermometer",
+  "Which of the following is a primary cell? A. Leclanché cell B. Lead-acid accumulator C. Nickel-iron cell D. Lithium-ion battery",
+  "The refractive index of glass is 1.5. Calculate the speed of light in glass. [Speed of light in vacuum = 3 x 10⁸ m/s] A. 2 x 10⁸ m/s B. 4.5 x 10⁸ m/s C. 1.5 x 10⁸ m/s D. 3 x 10⁸ m/s",
+  "A machine has an efficiency of 80%. If the work input is 1000 J, calculate the work output. A. 800 J B. 1250 J C. 200 J D. 1000 J",
+  "The phenomenon of light bending as it passes from one medium to another is: A. Reflection B. Refraction C. Diffraction D. Polarization",
+  "Which of the following is a scalar quantity? A. Force B. Velocity C. Energy D. Acceleration",
+  "The pressure at a depth h in a liquid of density ρ is given by: A. hρg B. hρ/g C. ρg/h D. hg/ρ",
+  "A transformer has 100 turns in the primary and 500 turns in the secondary. If the primary voltage is 20 V, what is the secondary voltage? A. 4 V B. 100 V C. 50 V D. 200 V",
+  "The heat required to change 1 kg of ice at 0°C to water at 0°C is called: A. Specific heat capacity B. Latent heat of fusion C. Latent heat of vaporization D. Heat capacity",
+  "Which of the following is a property of an ideal gas? A. Intermolecular forces are strong B. The volume of the molecules is negligible C. Collisions are inelastic D. The gas can be liquefied",
+  "The unit of electric power is: A. Joule B. Watt C. Ampere D. Volt",
+  "A body is dropped from a height of 20 m. Calculate the time it takes to reach the ground. [g = 10 m/s²] A. 1 s B. 2 s C. 4 s D. 10 s",
+  "The image formed by a plane mirror is: A. Real and erect B. Virtual and erect C. Real and inverted D. Virtual and inverted",
+  "Which of the following is used to detect ionizing radiation? A. Geiger-Muller counter B. Potentiometer C. Galvanometer D. Spectrometer",
+  "The relationship between the linear expansion (α) and volume expansion (γ) is: A. γ = α B. γ = 2α C. γ = 3α D. γ = α/3",
+  "A wire of length 2 m has a resistance of 4 ohms. What is the resistance of 5 m of the same wire? A. 10 ohms B. 8 ohms C. 2 ohms D. 20 ohms",
+  "The force between two point charges is given by: A. Ohm’s Law B. Coulomb’s Law C. Newton’s Law D. Faraday’s Law",
+  "Which of the following is a source of monochromatic light? A. Sunlight B. Laser C. Fluorescent lamp D. Candle",
+  "The work done in moving a charge of 2 C through a potential difference of 10 V is: A. 5 J B. 20 J C. 12 J D. 8 J",
+  "The frequency of a wave is 50 Hz and its wavelength is 2 m. Calculate its velocity. A. 25 m/s B. 100 m/s C. 52 m/s D. 48 m/s",
+  "Which of the following is a ferromagnetic material? A. Aluminum B. Iron C. Copper D. Wood",
+  "The angle of dip at the magnetic equator is: A. 0° B. 45° C. 90° D. 180°",
+  "A capacitor of 10 μF is connected to a 100 V supply. Calculate the energy stored. A. 0.05 J B. 0.1 J C. 1 J D. 10 J",
+  "The particle that carries a negative charge in an atom is: A. Proton B. Neutron C. Electron D. Positron",
+  "The process of adding impurities to a semiconductor is called: A. Doping B. Ionization C. Rectification D. Amplification",
+  "Which of the following is a non-renewable source of energy? A. Solar B. Wind C. Coal D. Hydroelectric",
+  "The pressure of a gas is 2 atm at 27°C. What is the pressure at 127°C if the volume is constant? A. 2.67 atm B. 9.41 atm C. 1.5 atm D. 3 atm",
+  "The focal length of a concave mirror is 10 cm. What is its radius of curvature? A. 5 cm B. 10 cm C. 20 cm D. 40 cm",
+  "Which of the following is a unit of work? A. Newton B. Watt C. Joule D. Pascal",
+  "A body of mass 2 kg is acted upon by a force of 10 N for 3 s. Calculate the change in momentum. A. 30 kg m/s B. 15 kg m/s C. 6 kg m/s D. 20 kg m/s",
+  "The phenomenon of total internal reflection occurs when light travels from: A. Air to water B. Water to air C. Vacuum to air D. Glass to water (if glass is denser)",
+  "The unit of capacitance is: A. Ohm B. Farad C. Henry D. Tesla",
+  "A sound wave has a frequency of 200 Hz. What is its period? A. 0.005 s B. 0.05 s C. 0.5 s D. 2 s",
+  "Which of the following is a property of X-rays? A. They are deflected by magnetic fields B. They travel at the speed of light C. They are longitudinal waves D. They have long wavelengths",
+  "The resistance of an ideal ammeter should be: A. Zero B. Infinite C. 100 ohms D. 1 ohm",
+  "The principle of flotation states that a floating body displaces: A. Its own volume of fluid B. Its own weight of fluid C. Half its weight of fluid D. Twice its weight of fluid",
+  "Which of the following is a vector quantity? A. Temperature B. Time C. Weight D. Volume",
+  "The heat capacity of a body is 200 J/K. How much heat is required to raise its temperature by 10 K? A. 20 J B. 2000 J C. 210 J D. 190 J",
+  "The velocity of sound is greatest in: A. Air B. Water C. Steel D. Vacuum",
+  "A lens has a focal length of -20 cm. The lens is: A. Convex B. Concave C. Plano-convex D. Cylindrical",
+  "The power dissipated in a resistor of 5 ohms when a current of 2 A flows through it is: A. 10 W B. 20 W C. 2.5 W D. 7 W",
+  "Which of the following is a radioactive isotope of carbon? A. Carbon-12 B. Carbon-13 C. Carbon-14 D. Carbon-16",
+  "The law which states that the extension of a spring is proportional to the applied force is: A. Newton’s Law B. Hooke’s Law C. Boyle’s Law D. Charles’s Law"
+  ];
+
+  
+  const correctAnswers = [
+  "A","B","C","D","D","D","D","C","B","A",
+  "C","C","C","B","B","A","C","A","B","B",
+  "C","A","B","A","B","A","B","C","A","B",
+  "B","B","C","C","B","B","A","A","A","A",
+  "A","B","C","A","B","B","B","B","B","B",
+  "A","C","A","B","B","B","B","B","A","A",
+  "C","A","C","A","C","C","A","B","B","A",
+  "B","A","B","C","B","C","B","B","C","B"
+  ];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === 40 - 1;
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+// Detect tab switching
+let tabSwitchCount = 0;
+let maxSwitchAllowed = 2; // change if you want more chances
+
+document.addEventListener("visibilitychange", function () {
+
+  if (document.hidden) {
+
+    tabSwitchCount++;
+
+    if (tabSwitchCount >= maxSwitchAllowed) {
+      clearInterval(timerInterval);
+      document.getElementById("assessment").requestSubmit();
+    } else {
+      alert("Warning! Do not switch tabs during the test.");
+    }
+
+  }
+
+});
+</script>
+</body>
+</html>

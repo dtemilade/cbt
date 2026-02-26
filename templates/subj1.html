@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CHEMISTRY - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #a67e20;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a67e20;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #0066cc;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #0066cc;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #0066cc;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #0066cc;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">CHEMISTRY - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+
+  const tasks = [
+  "The molecule with the highest number of lone pair of electrons is: A. H₂O B. NH₃ C. CH₄ D. CO₂",
+  "The composition of petroleum varies because it is a: A. hydrocarbon B. liquid C. mixture D. natural resource",
+  "An example of an alkaline gas is: A. HCl B. N₂ C. NH₃ D. NO₂",
+  "The dusty and sand particles present in the air is an example of: A. a suspension B. a dispersion C. an emulsion D. a saturated solution",
+  "At a given temperature and pressure, a gas X diffuses twice as fast as gas Y. It follows that: A. Gas Y is two times as heavy as Gas X B. Gas Y is four times as heavy as Gas X C. Gas Y is monoatomic D. Gas X is diatomic",
+  "The number of molecules of helium gas contained in 11.5 g of the gas is: A. 1.73 × 10²³ B. 1.73 × 10²² C. 1.73 × 10²⁴ D. 1.73 × 10²¹",
+  "The constituents of Alnico are Aluminium, Nickel and: A. Mg B. Co C. Mn D. Cu",
+  "Silver and Gold are metals found as free uncombined elements in the earth’s crust, which makes them to be referred to as: A. corrosive metals B. reactive metals C. natural metals D. noble metals",
+  "In the extraction of Aluminium, the silica impurity is removed by: A. electrolysis B. filtration C. reaction with H₂SO₄ D. precipitation",
+  "What happens to the position of equilibrium, if a reversible exothermic reaction is subjected to a decrease in temperature? A. The position shifts to the left B. The position shifts to the right C. The position remains unchanged D. The reaction stops",
+  "Which noble gas is radioactive and is produced as a decay product of uranium and thorium? A. Argon B. Krypton C. Radon D. Neon",
+  "Which of the following reactions would be expected to have the highest entropy change? A. Liquid → Gas B. Solid → Liquid C. Gas → Liquid D. Gas → Solid",
+  "What is the sum of the oxidation numbers in a neutral compound? A. +2 B. -1 C. 0 D. +1",
+  "According to the kinetic theory of gases, the pressure exerted by a gas is due to: A. vibrations of gas particles B. weight of gas particles C. attractive forces between gas particles D. collisions of gas particles with container walls",
+  "Which of the following is a chemical change? A. Melting of ice B. Boiling of water C. Rusting of iron D. Sublimation of iodine",
+  "The atomic number of an element is the number of: A. Protons in the nucleus B. Neutrons in the nucleus C. Electrons in the outermost shell D. Protons and neutrons in the nucleus",
+  "Which of the following elements has the highest electronegativity? A. Fluorine B. Chlorine C. Bromine D. Iodine",
+  "The shape of a water molecule is: A. Linear B. Trigonal planar C. Tetrahedral D. V-shaped (Bent)",
+  "Which of the following is an isotope of hydrogen? A. Deuterium B. Helium C. Lithium D. Beryllium",
+  "The process of losing electrons is called: A. Reduction B. Oxidation C. Hydrogenation D. Neutralization",
+  "The solution with a pH of 3 is: A. Strongly acidic B. Weakly acidic C. Neutral D. Strongly alkaline",
+  "The functional group of alkanols is: A. -COOH B. -CHO C. -OH D. -CO-",
+  "Which of the following is a saturated hydrocarbon? A. Ethene B. Ethyne C. Ethane D. Benzene",
+  "The gas produced when dilute HCl reacts with calcium carbonate is: A. Hydrogen B. Oxygen C. Carbon dioxide D. Chlorine",
+  "Which of the following is a greenhouse gas? A. Nitrogen B. Oxygen C. Methane D. Argon",
+  "The empirical formula of a compound with 40% Carbon, 6.7% Hydrogen, and 53.3% Oxygen is: A. CH₂O B. C₂H₄O₂ C. CHO D. C₂H₂O",
+  "Temporary hardness of water is caused by: A. Calcium sulfate B. Magnesium chloride C. Calcium hydrogen carbonate D. Sodium carbonate",
+  "The catalyst used in the Haber process is: A. Vanadium(V) oxide B. Finely divided iron C. Platinum D. Manganese(IV) oxide",
+  "Which of the following is an endothermic process? A. Combustion of wood B. Neutralization C. Photosynthesis D. Respiration",
+  "The number of moles in 10 g of NaOH (Na=23, O=16, H=1) is: A. 0.25 moles B. 0.5 moles C. 1.0 mole D. 2.0 moles",
+  "Which of the following is a property of acids? A. Turn red litmus blue B. Bitter taste C. React with metals to liberate hydrogen gas D. Feel soapy",
+  "The bond formed by sharing of electrons between atoms is: A. Ionic B. Covalent C. Metallic D. Hydrogen",
+  "A primary constituent of natural gas is: A. Ethane B. Methane C. Propane D. Butane",
+  "The process of separating two miscible liquids with different boiling points is: A. Filtration B. Decantation C. Fractional distillation D. Chromatography",
+  "Which of the following is an amphoteric oxide? A. Na₂O B. MgO C. Al₂O₃ D. SO₂",
+  "The oxidation state of Manganese in KMnO₄ is: A. +2 B. +4 C. +6 D. +7",
+  "Which of the following is a synthetic polymer? A. Starch B. Cellulose C. Nylon D. Protein",
+  "The gas that turns lime water milky is: A. Oxygen B. Hydrogen C. Carbon dioxide D. Nitrogen",
+  "Which of the following is a halogen? A. Sodium B. Magnesium C. Chlorine D. Argon",
+  "The molar volume of any gas at s.t.p. is: A. 22.4 dm³ B. 24.0 dm³ C. 11.2 dm³ D. 44.8 dm³",
+  "Which of the following is a strong electrolyte? A. Acetic acid B. Ammonia solution C. Sodium chloride solution D. Pure water",
+  "The coating of iron with zinc to prevent rusting is called: A. Vulcanization B. Galvanization C. Hydrogenation D. Polymerization",
+  "Which of the following is a neutral oxide? A. CO₂ B. NO C. SO₃ D. P₄O₁₀",
+  "The main ore of iron is: A. Bauxite B. Hematite C. Cassiterite D. Galena",
+  "Which of the following is a characteristic of a catalyst? A. Consumed in reaction B. Increases yield C. Lowers activation energy D. Shifts equilibrium",
+  "The general formula of alkanes is: A. CnH2n B. CnH2n+2 C. CnH2n-2 D. CnH2n+1OH",
+  "Which of the following is a disaccharide? A. Glucose B. Fructose C. Sucrose D. Galactose",
+  "The bond in sodium chloride crystal is: A. Covalent B. Ionic C. Dative D. Metallic",
+  "A common dehydrating agent is: A. Dilute H₂SO₄ B. Concentrated H₂SO₄ C. NaOH solution D. HCl gas",
+  "The percentage by mass of Nitrogen in (NH₄)₂SO₄ (N=14, H=1, S=32, O=16) is: A. 21.2% B. 10.6% C. 42.4% D. 14.0%",
+  "A property of transition metals is: A. All gases B. Low melting points C. Form colored compounds D. Very reactive with water",
+  "The gas used in filling balloons due to low density and non-flammability is: A. Hydrogen B. Helium C. Nitrogen D. Neon",
+  "A product of fermentation of sugar is: A. Methanol B. Ethanol C. Ethanoic acid D. Ethyl ethanoate",
+  "The law of constant composition was proposed by: A. John Dalton B. Joseph Proust C. Antoine Lavoisier D. Robert Boyle",
+  "Which of the following is liquid at room temperature? A. Mercury B. Iron C. Copper D. Aluminum",
+  "Conversion of liquid to gas at boiling point is: A. Evaporation B. Vaporization C. Condensation D. Sublimation",
+  "Which non-metal conducts electricity? A. Diamond B. Graphite C. Sulfur D. Phosphorus",
+  "The major component of air is: A. Oxygen B. Nitrogen C. Carbon dioxide D. Argon",
+  "A property of bases is: A. Turn blue litmus red B. Sour taste C. React with acids to form salt and water D. Liberate CO₂ from carbonates",
+  "The number of electrons in Mg²⁺ (Atomic number 12) is: A. 10 B. 12 C. 14 D. 24",
+  "Which of the following is a noble gas? A. Fluorine B. Neon C. Oxygen D. Nitrogen",
+  "The hybridization in methane (CH₄) is: A. sp B. sp² C. sp³ D. dsp²",
+  "A common oxidizing agent is: A. H₂ B. CO C. KMnO₄ D. C",
+  "The breaking down of large hydrocarbons into smaller ones is: A. Polymerization B. Cracking C. Isomerization D. Reforming",
+  "The functional group of organic acids is: A. -OH B. -CHO C. -COOH D. -NH₂",
+  "The gas produced at the anode during electrolysis of acidified water is: A. Hydrogen B. Oxygen C. Chlorine D. Nitrogen",
+  "Which of the following is a primary color of light? A. Yellow B. Green C. Magenta D. Cyan",
+  "The solubility of a gas in liquid generally: A. Increases with temperature B. Decreases with temperature C. Remains constant D. Independent of pressure",
+  "A property of colloids is: A. Settle on standing B. Separated by filtration C. Show Tyndall effect D. Transparent",
+  "The mass of one mole of Carbon-12 is: A. 1 g B. 6 g C. 12 g D. 24 g",
+  "A common bleaching agent is: A. NaCl B. CaOCl₂ C. NaOH D. H₂SO₄",
+  "The bond angle in a tetrahedral molecule is: A. 90° B. 109.5° C. 120° D. 180°",
+  "A product of reaction between acid and carbonate is: A. Salt, water & oxygen B. Salt, water & hydrogen C. Salt, water & carbon dioxide D. Salt & hydrogen",
+  "Vulcanization involves heating rubber with: A. Carbon B. Sulfur C. Nitrogen D. Oxygen",
+  "A characteristic of homologous series is: A. Different functional groups B. Same physical properties C. Represented by general formula D. Different chemical properties",
+  "The gas used in manufacture of margarine is: A. Oxygen B. Hydrogen C. Nitrogen D. Chlorine",
+  "Which of the following is a strong base? A. NH₄OH B. Al(OH)₃ C. KOH D. Mg(OH)₂",
+  "The number of neutrons in ²³Na₁₁ is: A. 11 B. 12 C. 23 D. 34",
+  "A property of covalent compounds is: A. High melting points B. Conduct electricity molten C. Generally insoluble in water D. Formed between metals & non-metals",
+  "The law stating that volume of fixed mass of gas is inversely proportional to pressure at constant temperature is: A. Charles’s Law B. Boyle’s Law C. Graham’s Law D. Avogadro’s Law"
+  ];  
+
+  
+  const correctAnswers = [
+  "A","C","C","A","B","A","B","D","D","B",
+  "C","A","C","D","C","A","A","D","A","B",
+  "A","C","C","C","C","A","C","B","C","A",
+  "C","B","B","C","C","D","C","C","C","A",
+  "C","B","B","B","C","B","C","B","B","A",
+  "C","B","B","B","A","B","B","B","C","A",
+  "B","C","C","B","C","B","B","B","C","C",
+  "B","B","C","B","C","B","C","B","C","B"
+  ];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === 40 - 1;
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+// Detect tab switching
+let tabSwitchCount = 0;
+let maxSwitchAllowed = 2; // change if you want more chances
+
+document.addEventListener("visibilitychange", function () {
+
+  if (document.hidden) {
+
+    tabSwitchCount++;
+
+    if (tabSwitchCount >= maxSwitchAllowed) {
+      clearInterval(timerInterval);
+      document.getElementById("assessment").requestSubmit();
+    } else {
+      alert("Warning! Do not switch tabs during the test.");
+    }
+
+  }
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GOVERNMENT - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #cc008fd1;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #cc008fd1;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #cc008fd1;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #cc008fd1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #D0842F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #cc008fd1;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a67e20;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #cc008fd1;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #cc008fd1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">GOVERNMENT - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+
+  const tasks = [
+  "A constitution is a legal document _________ A. drawn up by lawyers B. enacted by military decrees C. forming the basis upon which a government rules the country D. only likely to succeed in countries where there is union government",
+  "A government in which control of ultimate power is by a few who rule in their selfish interest is classified as _________ A. an oligarchy B. a dictatorship C. an aristocracy D. a monarchy",
+  "The judicial organ of government is the body which _________ A. implements the law B. makes the law C. punishes lawbreakers D. interprets the law",
+  "Which of the following was not established by the 1979 Nigerian constitution? A. Police Service Commission B. National Universities Commission C. Federal Electoral Commission D. National Population Commission",
+  "Rates are generally collected in Nigeria by ________ A. the State Ministry of Finance B. the Department of Inland Revenue C. the Emirate or Traditional Council D. the Local Government Council",
+  "In a democracy, sovereignty is in _________ A. the community B. public officials C. judges D. the Head of State",
+  "Which of the following is a good example of a confederal state? A. Nigeria B. ECOWAS C. Switzerland D. USA",
+  "A bill that applies to the whole population and is intended to promote the general welfare is called _________ A. a private bill B. a decree C. an appropriate bill D. a public bill",
+  "Fascism developed in ________ A. France B. Germany C. Italy D. China",
+  "The theory of separation of powers was first clearly formulated by __________ A. Jean Bodin B. Jean Austin C. Baron de Montesquieu D. Lord Bryce",
+  "A system of government in which power derives from total control of the instruments of force is called ___________ A. monarchy B. oligarchy C. capitalism D. fascism",
+  "The British Government revoked the charter of the Royal Niger Company and took over the direct administration of Nigeria in _________ A. 1861 B. 1900 C. 1906 D. 1914",
+  "The Fundamental Objectives and Directive Principles of State Policy in the 1979 constitution do not include _________ A. democracy and social justice B. federal character and inequality C. concentration of wealth and provision of maximum welfare D. national integration and ethnic loyalty",
+  "The founder of the Universal Negro Improvement Association was ________ A. Casey Hayford B. Herbert Macaulay C. Marcus Garvey D. W. E. B. DuBois",
+  "A characteristic feature of communism is __________ A. free enterprise B. liberal democracy C. dictatorship D. multi-party system",
+  "Africans were first elected to the legislative council in British West Africa in _________ A. Ghana B. Sierra Leone C. The Gambia D. Nigeria",
+  "When a state is subject to no other authority, it is said to be _________ A. powerful B. legitimate C. authoritative D. sovereign",
+  "While pressure groups aim at influencing government decisions, the primary aim of political parties is to ______ A. promote the welfare of their members B. execute particular programmes C. influence legislation in order to benefit their members D. control political power",
+  "In the traditional Hausa-Fulani political system, political authority was vested in the ___________ A. Emir B. Talakawa C. Alkali D. Emirate Council",
+  "Southern Nigeria was divided into Eastern and Western provinces for administrative purposes in _________ A. 1935 B. 1937 C. 1939 D. 1941",
+  "Within the United Nations, the veto power is exercised in __________ A. UNESCO B. WHO C. the General Assembly D. the Security Council",
+  "A set of internalized norms which guides political action is called ________ A. power B. value C. law D. symbol",
+  "A condition for judicial independence is the appointment of judges by the __________ A. Civil Service B. Judicial Service Commission C. Law Review Commission D. Code of Conduct Bureau",
+  "Which of the following is not associated with local government elections? A. Constituency B. Ballot Box C. Electoral Officer D. Ward",
+  "Warrant Chiefs were appointed to __________ A. Prevent tribal wars B. supervise native courts C. decide divorce cases D. take charge of local administration",
+  "The application of the rule of law may be constrained by ________ A. securing the tenure of office of judges B. insulating judges from partisan politics C. employing men of proven integrity as judges D. invoking emergency powers",
+  "The highest court in Nigeria before 1963 was the _________ A. Supreme Court B. High Court C. Judicial Committees of the Privy Council D. Court of Appeal",
+  "A feature unique to General Murtala Muhammed’s Supreme Military Council as compared to that of General Yakubu Gowon was the _________ A. inclusion of the civilians as members B. exclusion of military governors from the council C. inclusion of the chief justice as a member D. the exclusion of the Inspector General of police from the council",
+  "In the First Republic, Nigeria was very reluctant to have meaningful interaction with ________ A. Italy B. the Soviet Union C. the United States of America D. Germany",
+  "The Gulf War of 1990 is an indication that the U.N.O. is unable to _______ A. ensure free world trade B. stop colonialism C. control armament D. ensure permanent world peace",
+  "The simple plurality electoral system is often criticized because _________ A. the ruling party may lose the election B. the winner may not poll an absolute majority C. it works against all opposition parties D. it is easy to rig",
+  "Which of the following was the last to win independence from colonial rule? A. Cote d’Ivoire B. Algeria C. Tanzania D. Angola",
+  "Nigeria’s non-aligned policy means that she will _________ A. have nothing to do with the superpowers B. not take sides in international issues based on ideological considerations C. avoid having any dealing with any country with ideological leanings D. relate only with member countries of the Non-Aligned movement",
+  "The charter of the United Nations was drawn up in ________ A. New York B. San Francisco C. Washington DC D. Los Angeles",
+  "The idea of making the civil service permanent, neutral and anonymous is to _________ A. make civil servants a functional elite B. prevent opposition to government C. ensure loyalty and support D. enhance efficiency in administration",
+  "The delineation of constituencies is a major duty of the __________ A. electoral commission B. boundary commission C. national assemblies D. political parties",
+  "A meeting of the legislature is usually brought to an end with __________ A. an adjournment B. a prorogation C. a dissolution D. suspension",
+  "The economic basis of feudalism is __________ A. agriculture B. capital C. trade D. slavery",
+  "NEPAD was adopted during the OAU summit held in _________ A. Tunis B. Lusaka C. Cairo D. Abuja",
+  "The Premier of Western Region immediately after independence was _________ A. Chief Obafemi Awolowo B. Chief Ladoke Akintola C. Dr. M. A. Majekodunmi D. Alhaji D. S. Adegbenro",
+  "The first past the post system of voting is also referred to as A. single transferable voting system B. simple majority method C. alternative voting method D. second ballot system",
+  "A community that cooperates and harnesses its resources together is said to be practising A. capitalism B. communism C. communalism D. socialism",
+  "The African leaders formally marked the end of the Organisation of African Unity and replaced it with the African Union in A. 10th August 2004 B. 30th May 2006 C. 8th July 2002 D. 6th June 2000",
+  "A permanent structure that facilitates continuity in governance is the A. military B. public corporations C. judiciary D. civil service",
+  "The two constitutions that provided for the election of four legislative members were A. Lyttleton and Clifford B. Macpherson and Richard C. Clifford and Richard D. Macpherson and Lyttleton",
+  "The principle of separation of powers was popularized by A. Karl Marx B. Montesquieu C. John Locke D. Thomas Hobbes",
+  "Which of the following committees was Nigeria part of? A. OPEC B. Nepad C. UN D. AU",
+  "A group that influences government decisions without necessarily controlling power is? A. Political Party B. Pressure Group C. Influence D. Policy Makers",
+  "The primary function of the legislature is to A. Execute laws B. Interpret laws C. Make laws D. Enforce laws",
+  "The head of the Commonwealth of Nations is A. The British Prime Minister B. The Secretary-General of the UN C. The British Monarch D. The President of the USA",
+  "The 1999 Constitution of Nigeria is A. Unwritten B. Rigid C. Flexible D. Unitary",
+  "The process of removing a president from office in a presidential system is called A. Recall B. Impeachment C. Vote of no confidence D. Dismissal",
+  "The organ of government responsible for the administration of justice is the A. Executive B. Legislature C. Judiciary D. Civil Service",
+  "The first military coup in Nigeria occurred in A. 1960 B. 1963 C. 1966 D. 1975",
+  "The main objective of the United Nations is to A. Promote trade B. Maintain international peace and security C. Colonize new territories D. Spread democracy",
+  "The system of government where power is shared between the central and component units is A. Unitary B. Federal C. Confederal D. Monarchy",
+  "The right to vote is also known as A. Franchise B. Liberty C. Sovereignty D. Authority",
+  "The ECOWAS headquarters is located in A. Lagos B. Accra C. Abuja D. Dakar",
+  "The rule of law means A. The law is above everyone B. The president is above the law C. Only lawyers are subject to the law D. The military is above the law",
+  "The first Governor-General of independent Nigeria was A. Lord Lugard B. Nnamdi Azikiwe C. Tafawa Balewa D. Obafemi Awolowo",
+  "The party system that Nigeria operated in the aborted Third Republic is A. zero party system B. one party system C. two party system D. multi-party system",
+  "Delegated legislation can be regulated through A. ministerial control B. legislative control C. executive control D. judicial control",
+  "The main argument against the 1999 Constitution is that A. it was imposed by the military B. the executive have immunity clause C. it is expensive to operate D. it did not create additional states",
+  "Which of the following is a basic feature of the rule of law? A. Secret trial of offenders B. Unlimited power of the executive C. Dependent judiciary D. Equality before the law",
+  "The collective views of the citizens on a specific national matter is A. group opinions B. electoral opinion C. public opinion D. collective responsibility",
+  "The 1976 Local Government Reform in Nigeria was intended to A. Abolish local governments B. Uniformize local government administration C. Increase the power of traditional rulers D. Reduce the number of local governments",
+  "The highest policy-making body in the AU is the A. Assembly of Heads of State and Government B. Executive Council C. Pan-African Parliament D. Court of Justice",
+  "The principle of ‘Federal Character’ in Nigeria is aimed at A. Promoting ethnic dominance B. Ensuring equitable representation C. Abolishing states D. Centralizing power",
+  "The first Nigerian to be the President of the UN General Assembly was A. Joseph Garba B. Ibrahim Gambari C. Nnamdi Azikiwe D. Emeka Anyaoku",
+  "The ‘Ombudsman’ in Nigeria is known as the A. Public Complaints Commission B. Economic and Financial Crimes Commission C. Independent Corrupt Practices Commission D. Code of Conduct Bureau",
+  "Which of the following is a fundamental principle of democratic governance? A. Centralized decision-making B. Censorship of the media C. Citizen Participation D. Authoritarianism",
+  "Which of the following is not a source of public opinion? A. Opinion polls B. Academic Journals C. Social media D. political parties",
+  "In a parliamentary system of government, the head of government is typically ___________. A. elected directly by the people B. the leader of the majority party in the legislature C. appointed by the judiciary D. chosen by the head of state",
+  "The policy of ‘indigenization’ was introduced under the regime of? A. General Yakubu Gowon B. General Olusegun Obasanjo C. General Ibrahim Babangida D. General Sani Abacha",
+  "Who is the current chairperson of ECOWAS? (As of 2023/2024) A. Bola Ahmed Tinubu B. Alassane Ouattara C. Macky Sall D. Nana Akufo-Addo",
+  "The 1963 Constitution of Nigeria made the country a A. Monarchy B. Republic C. Colony D. Protectorate",
+  "The ‘Veto Power’ in the UN Security Council is held by A. All member states B. 10 non-permanent members C. 5 permanent members D. The Secretary-General",
+  "The main function of the Civil Service is to A. Make laws B. Advise the government and implement policies C. Adjudicate cases D. Organize elections",
+  "The ‘Great Purge’ of the civil service in Nigeria occurred in A. 1966 B. 1975 C. 1983 D. 1999",
+  "The first political party in Nigeria was the A. NCNC B. NPC C. NNDP D. AG"
+  ];
+
+
+  const correctAnswers = [
+  "C","A","D","B","D","A","B","D","C","C",
+  "D","B","B","C","C","D","D","D","A","C",
+  "D","B","B","A","D","D","C","B","B","D",
+  "B","D","B","B","D","A","B","A","B","B",
+  "B","C","C","D","C","B","B","B","C","C",
+  "B","B","C","C","B","B","A","C","A","B",
+  "C","D","A","D","C","B","A","B","A","A",
+  "C","B","B","A","A","B","C","B","B","C"
+  ];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === 40 - 1;
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+// Detect tab switching
+let tabSwitchCount = 0;
+let maxSwitchAllowed = 2; // change if you want more chances
+
+document.addEventListener("visibilitychange", function () {
+
+  if (document.hidden) {
+
+    tabSwitchCount++;
+
+    if (tabSwitchCount >= maxSwitchAllowed) {
+      clearInterval(timerInterval);
+      document.getElementById("assessment").requestSubmit();
+    } else {
+      alert("Warning! Do not switch tabs during the test.");
+    }
+
+  }
+
+});
+
+</script>
+</body>
+</html>

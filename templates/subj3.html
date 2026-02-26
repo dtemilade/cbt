@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECONOMICS - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #20a63bff;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #20a63bff;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #20a63bff;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #20a63bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #20a63bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #20a63bff;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #20a63bff;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #20a63bff;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #20a63bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">ECONOMICS - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+const tasks = [
+
+"Which of the following is not emphasized in a product possibility curve? A. Scarcity of resources B. Unemployment of labour C. Inefficiency in the use of resources D. Economic development",
+
+"Which of the following NOT among the objectives of OPEC? A. to stabilize the price of oil in the world market B. to established petroleum refineries in all member state C. to stabilize the revenue from oil to producing countries D. to make sure that oil flows to all the consuming countries",
+
+"A market situation with few sellers and many buyers is called A. duopoly B. Monopoly C. perfect competition D. oligopoly",
+
+"MPC + MPS equals A. Zero B. Multiplier C. One D. APS",
+
+"Producers operating in a free market economy are more efficient as a result of A. the existence of competition B. government regulation of their activities C. the very few number of participants D. the commitment of the shareholders",
+
+"In income determination theory, acceleration principles shows that A. investment is the causes, while income is the effects B. income and investment are both effects C. incomes is of on effect on investment D. income and investment are both causes",
+
+"The largest component of national income in developing countries consist of A. wages and salaries B. rent C. profit D. profit and rent",
+
+"Holding money to take care of contingencies is A. a precautionary motive B. a transactions motive C. an expansionary motive D. a speculative motive",
+
+"In the long-run, a firm must shut down if its average revenue is A. greater than average cost B. equal to the average cost C. equal to the minimum average revenue is D. less than average variable cost",
+
+"The act of cultivating land and rearing of animal for man’s use is A. forestry B. agriculture C. mono culture D. horticulture",
+
+"A tariff is a tax imposed on A. Consumer goods B. Domestic goods C. Imported goods D. Exported goods",
+
+"The demand for a good is price inelastic if A. The price elasticity is less than one B. The price elasticity is one C. The price elasticity is negative D. The price elasticity is greater than one",
+
+"Which of the following is an example of free good? A. Free education B. Water in the ocean C. Dinner you did not pay for D. Your rented apartment",
+
+"The marginal propensity to consume is A. Options A, B and C B. ΔC/ΔY C. The slope of the consumption function D. Coefficient c in the equation C = C + cYd",
+
+"The short run can be defined as the period of time during which A. All inputs are fixed B. At least one of the firm’s input is fixed C. At least two inputs are fixed D. All inputs are variable",
+
+"The law of diminishing marginal utility states that A. Total utility decreases as more units are consumed B. Marginal utility decreases as more units are consumed C. Average utility remains constant D. Marginal utility increases as more units are consumed",
+
+"Which of the following is not a factor of production? A. Land B. Labour C. Capital D. Money",
+
+"The opportunity cost of a good is A. Its market price B. The value of the next best alternative foregone C. The cost of production D. The profit made from selling it",
+
+"A perfectly elastic demand curve is A. Horizontal B. Vertical C. Downward sloping D. Upward sloping",
+
+"Inflation is best defined as A. An increase in the general price level of goods and services B. A decrease in the purchasing power of money C. An increase in the cost of living D. All of the above",
+
+"The balance of payments includes A. Only visible trade B. Only invisible trade C. Both visible and invisible trade D. Neither visible nor invisible trade",
+
+"Which of the following is a characteristic of perfect competition? A. Few sellers and many buyers B. Homogeneous products C. High barriers to entry D. Price makers",
+
+"Comparative advantage is based on A. Absolute cost differences B. Relative cost differences C. Transportation costs D. Government policies",
+
+"The multiplier effect shows that A. An increase in investment leads to a proportional increase in income B. An increase in investment leads to a greater increase in income C. An increase in investment leads to a decrease in income D. Investment has no effect on income",
+
+"Fiscal policy refers to A. The management of money supply by the central bank B. Government spending and taxation C. International trade policies D. Exchange rate management",
+
+"The velocity of money is A. The number of times money changes hands in a period B. The speed at which money is printed C. The rate of inflation D. The interest rate",
+
+"An inferior good is one where A. Demand increases when income increases B. Demand decreases when income increases C. Demand remains constant regardless of income D. Supply is limited",
+
+"The production possibility frontier shows A. The maximum output that can be produced with available resources B. The minimum output that must be produced C. The actual output being produced D. The desired output of consumers",
+
+"Which of the following is a variable cost? A. Rent on factory building B. Salaries of permanent staff C. Raw materials used in production D. Insurance on equipment",
+
+"Monetary policy is primarily concerned with A. Government spending B. Taxation C. Money supply and interest rates D. International trade",
+
+"The elasticity of supply measures A. The responsiveness of quantity supplied to price changes B. The total quantity supplied C. The change in price D. The change in demand",
+
+"A normal good is one where A. Demand decreases when income increases B. Demand increases when income increases C. Demand remains constant D. Supply is unlimited",
+
+"The consumer surplus is A. The difference between what consumers pay and what they are willing to pay B. The total amount consumers spend C. The profit made by consumers D. The excess supply in the market",
+
+"Which of the following is not a type of unemployment? A. Frictional unemployment B. Structural unemployment C. Cyclical unemployment D. Permanent unemployment",
+
+"The Gini coefficient measures A. Economic growth B. Income inequality C. Inflation rate D. Unemployment rate",
+
+"A monopoly exists when A. There are many sellers B. There is one seller of a unique product C. There are few sellers D. There are many buyers",
+
+"The law of supply states that A. As price increases, quantity supplied decreases B. As price increases, quantity supplied increases C. Price and quantity supplied are unrelated D. Quantity supplied depends only on production costs",
+
+"Exchange rate appreciation means A. The currency becomes less valuable B. The currency becomes more valuable C. The exchange rate remains constant D. The currency is devalued",
+
+"Aggregate demand includes A. Only consumption spending B. Consumption, investment, government spending, and net exports C. Only investment spending D. Only government spending",
+
+"The natural rate of unemployment is A. Zero percent B. The unemployment rate when the economy is at full employment C. The maximum unemployment rate D. The minimum unemployment rate",
+
+"A budget deficit occurs when A. Government revenue exceeds government spending B. Government spending exceeds government revenue C. Government revenue equals government spending D. There is no government spending",
+
+"The Phillips curve shows the relationship between A. Inflation and unemployment B. Inflation and interest rates C. Unemployment and interest rates D. Inflation and economic growth",
+
+"Which of the following is a capital good? A. A loaf of bread B. A factory machine C. A shirt D. A car for personal use",
+
+"The law of demand states that A. As price increases, quantity demanded increases B. As price increases, quantity demanded decreases C. Price and quantity demanded are unrelated D. Quantity demanded depends only on income",
+
+"Deflation is A. An increase in the general price level B. A decrease in the general price level C. A constant price level D. A rapid increase in prices",
+
+"The Lorenz curve is used to measure A. Economic growth B. Income distribution C. Inflation D. Unemployment",
+
+"Economies of scale refer to A. The increase in costs as production increases B. The decrease in average costs as production increases C. The constant costs as production increases D. The fixed costs of production",
+
+"A progressive tax is one where A. The tax rate is the same for all income levels B. The tax rate increases as income increases C. The tax rate decreases as income increases D. There is no tax on income",
+
+"The marginal rate of substitution is A. The amount of one good given up for another B. The rate at which a consumer is willing to substitute one good for another C. The price of a good D. The total utility of a good",
+
+"Which of the following is a stock variable? A. Investment B. Savings C. Wealth D. Income",
+
+"The crowding out effect occurs when A. Government spending reduces private investment B. Private investment increases government spending C. Government spending increases private investment D. Private investment has no effect on government spending",
+
+"Rent in economics refers to A. Payment for the use of a building B. Income earned from a factor of production in excess of its opportunity cost C. The cost of living D. Payment for labor",
+
+"The break-even point for a firm is when A. Total revenue equals total cost B. Total revenue exceeds total cost C. Total cost exceeds total revenue D. There is no profit or loss",
+
+"Which of the following is a flow variable? A. Capital stock B. Money supply C. Income D. Wealth",
+
+"The substitution effect of a price change refers to A. The change in quantity demanded due to a change in relative prices B. The change in quantity demanded due to a change in real income C. The total change in quantity demanded D. The change in supply",
+
+"A regressive tax is one where A. The tax rate increases as income increases B. The tax rate decreases as income increases C. The tax rate is the same for all income levels D. There is no tax",
+
+"The income effect of a price change refers to A. The change in quantity demanded due to a change in relative prices B. The change in quantity demanded due to a change in real income C. The total change in quantity demanded D. The change in supply",
+
+"Which of the following is not a function of money? A. Medium of exchange B. Store of value C. Unit of account D. Measure of inflation",
+
+"The demand curve for a monopolist is A. Perfectly elastic B. Perfectly inelastic C. Downward sloping D. Horizontal",
+
+"Ceteris paribus means A. All other things being equal B. All things changing C. Nothing else matters D. Everything else changes",
+
+"The price elasticity of demand is calculated as A. Percentage change in price / Percentage change in quantity demanded B. Percentage change in quantity demanded / Percentage change in price C. Change in price / Change in quantity demanded D. Change in quantity demanded / Change in price",
+
+"Which of the following is a microeconomic concept? A. National income B. Inflation C. Unemployment D. Price of a good",
+
+"The Engel curve shows the relationship between A. Price and quantity demanded B. Income and quantity demanded C. Price and income D. Supply and demand",
+
+"A cartel is A. A single firm producing a good B. A group of firms that collude to fix prices and output C. A perfectly competitive market D. A market with many buyers",
+
+"The point of satiation is when A. Total utility is maximized B. Marginal utility is positive C. Marginal utility is negative D. Average utility is maximized",
+
+"Which of the following is a macroeconomic variable? A. Price of wheat B. Quantity of cars produced C. Gross Domestic Product D. Wage of a teacher",
+
+"The cross elasticity of demand measures A. The responsiveness of quantity demanded to price changes B. The responsiveness of quantity demanded of one good to price changes of another good C. The responsiveness of quantity supplied to price changes D. The responsiveness of income to price changes",
+
+"A perfectly inelastic demand curve is A. Horizontal B. Vertical C. Downward sloping D. Upward sloping",
+
+"Which of the following is not a component of the money supply? A. Currency in circulation B. Demand deposits C. Savings deposits D. Stocks and bonds",
+
+"The real interest rate is A. The nominal interest rate B. The nominal interest rate minus the inflation rate C. The nominal interest rate plus the inflation rate D. The interest rate set by the central bank",
+
+"Which of the following is a positive statement in economics? A. The government should reduce taxes B. The inflation rate is 5 % C. The government should increase spending D. Unemployment is bad",
+
+"The law of comparative advantage suggests that A. Countries should not trade with each other B. Countries should specialize in what they produce best C. Countries should specialize in what they produce at the lowest opportunity cost D. All countries should produce all goods",
+
+"Which of the following is an example of a public good? A. A hamburger B. A car C. National defense D. A shirt",
+
+"The Laffer curve shows the relationship between A. Tax rates and tax revenue B. Inflation and unemployment C. Income and consumption D. Price and quantity demanded",
+
+"A negative externality is A. A benefit to society from an economic activity B. A cost to society from an economic activity not reflected in market prices C. A benefit to society from an economic activity not reflected in market prices D. A cost to society that is reflected in market prices",
+
+"Which of the following is a normative statement in economics? A. The unemployment rate is 10 % B. The inflation rate is 3 % C. The government should increase the minimum wage D. The price of oil increased by 5 %",
+
+"The Keynesian consumption function is A. C = S + I B. C = a + bYd C. C = Y - S D. C = I + G",
+
+"Which of the following is not a determinant of demand? A. Price of the good B. Income of consumers C. Preferences of consumers D. Cost of production",
+
+"The concept of diminishing returns applies when A. All inputs are increased proportionally B. One input is increased while others are held constant C. All inputs are decreased D. There is no change in inputs",
+
+"Which of the following is a characteristic of monopolistic competition? A. One seller B. Many sellers of differentiated products C. Perfect substitutes D. No barriers to entry"
+
+];
+
+// Correct option per question (A–D)
+const correctAnswers = [
+"D","B","D","C","A","A","A","A","D","B",
+"C","A","B","A","B","B","D","B","A","D",
+"C","B","B","B","B","A","B","A","C","C",
+"A","B","A","D","B","B","B","B","B","B",
+"B","A","B","B","B","B","B","B","B","C",
+"A","B","A","C","A","B","B","D","C","A",
+"B","D","B","B","A","C","B","B","D","B",
+"B","C","C","A","B","C","B","D","B","B"
+];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === 40 - 1;
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+// Detect tab switching
+let tabSwitchCount = 0;
+let maxSwitchAllowed = 2; // change if you want more chances
+
+document.addEventListener("visibilitychange", function () {
+
+  if (document.hidden) {
+
+    tabSwitchCount++;
+
+    if (tabSwitchCount >= maxSwitchAllowed) {
+      clearInterval(timerInterval);
+      document.getElementById("assessment").requestSubmit();
+    } else {
+      alert("Warning! Do not switch tabs during the test.");
+    }
+
+  }
+
+});
+
+</script>
+</body>
+</html>
