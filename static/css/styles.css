@@ -159,11 +159,11 @@ form {
     }
 
     .submain {
-        width: 85%;
+        width: auto;
     }
     
     .submain2 {
-        width: 88%;
+        width: auto;
     }
     .submain h1 {
         font-size: 20px;
