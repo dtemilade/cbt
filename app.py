@@ -22,6 +22,8 @@ def start():
         return redirect(url_for('subj4', time=time))
     elif subj == 'subj5':
         return redirect(url_for('subj5', time=time))
+    elif subj == 'subj6':
+        return redirect(url_for('subj6', time=time))
     else:
         return "Invalid selection."
 
@@ -44,6 +46,10 @@ def subj4():
 @app.route('/subj5')
 def subj5():
     return render_template('subj5.html')
+
+@app.route('/subj6')
+def subj6():
+    return render_template('subj6.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)

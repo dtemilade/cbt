@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ENGLISH - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #8c5312;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #8c5312;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #8c5312;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #8c5312;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #8c5312;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #8c5312;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #8c5312;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #8c5312;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #8c5312;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">ENGLISH - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+ const tasks = [
+
+"[Idiom Meaning:] The manager’s decision was a bitter pill for the employees to swallow. A. The employees were given bitter medicine. B. The employees found the decision difficult to accept. C. The manager was unkind to the employees. D. The employees were unhappy with the manager’s health.",
+
+"[Idiom Meaning:] Chidi is a chip off the old block. A. Chidi is a carpenter. B. Chidi is very much like his father. C. Chidi is a small piece of wood. D. Chidi is different from his parents.",
+
+"[Idiom Meaning:] The students were all ears when the principal started speaking. A. The students had large ears. B. The students were listening very attentively. C. The students were confused by the speech. D. The students were making noise.",
+
+"[Idiom Meaning:] She has a heart of gold. A. She is very wealthy. B. She is very kind and generous. C. She has a medical condition. D. She wears gold jewelry.",
+
+"[Idiom Meaning:] The project is still up in the air. A. The project is being flown to another city. B. The project is undecided or uncertain. C. The project is very successful. D. The project is being carried out in an airplane.",
+
+"[Synonym Choice:] The lawyer’s argument was cogent. A. weak B. convincing C. long D. confusing.",
+
+"[Synonym Choice:] The atmosphere was convivial. A. hostile B. friendly C. quiet D. gloomy.",
+
+"[Synonym Choice:] He is known for his frugal lifestyle. A. wasteful B. economical C. luxurious D. miserable.",
+
+"[Synonym Choice:] The witness gave a candid account of the incident. A. false B. frank C. biased D. detailed.",
+
+"[Synonym Choice:] The teacher was incensed by the student’s behavior. A. happy B. indifferent C. angry D. surprised.",
+
+"[Antonym Choice:] The new policy is explicit. A. clear B. vague C. detailed D. strict.",
+
+"[Antonym Choice:] He is a very gregarious person. A. sociable B. reserved C. friendly D. talkative.",
+
+"[Antonym Choice:] The weather today is balmy. A. mild B. stormy C. pleasant D. warm.",
+
+"[Antonym Choice:] Her performance was mediocre. A. average B. excellent C. poor D. fair.",
+
+"[Antonym Choice:] The task was arduous. A. difficult B. easy C. long D. boring.",
+
+"[Idiom Meaning:] The governor’s speech was the last straw that broke the camel’s back. A. The governor’s speech was very long. B. The governor’s speech was the final event that made the situation unbearable. C. The governor’s speech was about camels. D. The governor’s speech was very inspiring.",
+
+"[Idiom Meaning:] He has a bone to pick with his neighbor. A. He wants to share a meal with his neighbor. B. He has a complaint or grievance to discuss with his neighbor. C. He is a doctor treating his neighbor. D. He is a dog owner.",
+
+"[Idiom Meaning:] The news of the accident came out of the blue. A. The news was announced on a blue screen. B. The news was expected. C. The news was completely unexpected. D. The news was about the ocean.",
+
+"[Idiom Meaning:] She is always blowing her own trumpet. A. She is a professional musician. B. She is very humble. C. She is always praising herself. D. She is very noisy.",
+
+"[Idiom Meaning:] The meeting ended on a high note. A. The meeting ended with a song. B. The meeting ended successfully and positively. C. The meeting ended with a loud argument. D. The meeting ended very late.",
+
+"[Idiom Meaning:] He is a dark horse in the upcoming election. A. He is a black man. B. He is a candidate whose strengths are unknown. C. He is a horse rider. D. He is not expected to win.",
+
+"[Idiom Meaning:] The task was a piece of cake. A. The task involved baking. B. The task was very easy. C. The task was delicious. D. The task was very difficult.",
+
+"[Idiom Meaning:] They are at loggerheads over the new policy. A. They are working together. B. They are in strong disagreement. C. They are cutting wood. D. They are indifferent.",
+
+"[Idiom Meaning:] He decided to call it a day. A. He decided to name the day. B. He decided to stop working for the day. C. He decided to start a new project. D. He decided to celebrate.",
+
+"[Idiom Meaning:] She was green with envy. A. She was feeling sick. B. She was very jealous. C. She was wearing a green dress. D. She was very happy.",
+
+"[Idiom Meaning:] The company is in the red. A. The company is very profitable. B. The company is losing money. C. The company is painted red. D. The company is expanding.",
+
+"[Idiom Meaning:] He hit the nail on the head. A. He is a carpenter. B. He made a mistake. C. He described the situation exactly. D. He hurt himself.",
+
+"[Idiom Meaning:] They are in the same boat. A. They are traveling together. B. They are in the same difficult situation. C. They are professional sailors. D. They are very wealthy.",
+
+"[Idiom Meaning:] He is a wet blanket. A. He is very cold. B. He is someone who spoils the fun. C. He is very helpful. D. He is a laundryman.",
+
+"[Idiom Meaning:] The secret is out of the bag. A. The bag is empty. B. The secret has been revealed. C. The bag was stolen. D. The secret is still hidden.",
+
+"[Synonym Choice:] The principal’s remarks were curt. A. polite B. brief and rude C. long and detailed D. encouraging.",
+
+"[Synonym Choice:] The evidence was irrefutable. A. questionable B. undeniable C. weak D. confusing.",
+
+"[Synonym Choice:] He is a meticulous worker. A. lazy B. careful and precise C. fast D. careless.",
+
+"[Synonym Choice:] The crowd was boisterous. A. quiet B. noisy and energetic C. angry D. small.",
+
+"[Synonym Choice:] Her story was implausible. A. believable B. unlikely C. interesting D. true.",
+
+"[Synonym Choice:] The king was benevolent. A. cruel B. kind and generous C. powerful D. wealthy.",
+
+"[Synonym Choice:] The smell was pungent. A. sweet B. strong and sharp C. pleasant D. faint.",
+
+"[Synonym Choice:] He was adamant about his decision. A. flexible B. unsure C. firm and unyielding D. happy.",
+
+"[Synonym Choice:] The room was cluttered. A. clean B. messy and full of things C. large D. empty.",
+
+"[ Synonym Choice:] The situation was precarious. A. safe B. dangerous and unstable C. exciting D. boring.",
+
+"[Synonym Choice:] She gave a succinct summary. A. long B. brief and clear C. confusing D. detailed.",
+
+"[Synonym Choice:] The music was melodious. A. loud B. pleasant-sounding C. harsh D. soft.",
+
+"[Synonym Choice:] He is an affable young man. A. rude B. friendly and easy to talk to C. shy D. intelligent.",
+
+"[Synonym Choice:] The project was abandoned. A. started B. given up C. finished D. successful.",
+
+"[Synonym Choice:] The news was devastating. A. exciting B. shocking and upsetting C. boring D. expected.",
+
+"[Synonym Choice:] He is a prolific writer. A. slow B. producing many works C. famous D. talented.",
+
+"[Synonym Choice:] The building was dilapidated. A. new B. in a state of disrepair C. beautiful D. tall.",
+
+"[Synonym Choice:] Her behavior was erratic. A. predictable B. unpredictable C. good D. strange.",
+
+"[Synonym Choice:] The water was turbid. A. clear B. muddy and cloudy C. cold D. deep.",
+
+"[Synonym Choice:] He is a venerable old man. A. respected B. hated C. poor D. funny.",
+
+"[Synonym Choice:] The task was monotonous. A. exciting B. dull and repetitive C. difficult D. short.",
+
+"[Synonym Choice:] She was elated by the news. A. sad B. very happy C. surprised D. angry.",
+
+"[Synonym Choice:] The path was treacherous. A. safe B. dangerous C. long D. easy.",
+
+"[Synonym Choice:] He is a versatile actor. A. talented B. able to do many things well C. famous D. rich.",
+
+"[Synonym Choice:] The meeting was adjourned. A. started B. put off to a later time C. cancelled D. successful.",
+
+"[Synonym Choice:] The law was repealed. A. passed B. cancelled or abolished C. changed D. enforced.",
+
+"[Synonym Choice:] He is a tenacious person. A. weak B. persistent and determined C. lazy D. friendly.",
+
+"[Synonym Choice:] The room was opulent. A. poor B. luxurious and wealthy C. small D. dark.",
+
+"[Synonym Choice:] The speech was eloquent. A. boring B. fluent and persuasive C. long D. confusing.",
+
+"[Synonym Choice:] He was exonerated by the court. A. convicted B. declared free from guilt C. punished D. arrested.",
+
+"[Antonym Choice:] The new manager is very lenient. A. strict B. kind C. fair D. lazy.",
+
+"[Antonym Choice:] The weather was inclement. A. stormy B. pleasant C. cold D. rainy.",
+
+"[Antonym Choice:] He is a diligent student. A. hardworking B. lazy C. intelligent D. careful.",
+
+"[Antonym Choice:] The room was spacious. A. large B. cramped C. clean D. bright.",
+
+"[Antonym Choice:] Her response was ambiguous. A. clear B. vague C. confusing D. long.",
+
+"[Antonym Choice:] The king was tyrannical. A. cruel B. democratic C. powerful D. wealthy.",
+
+"[Antonym Choice:] The news was authentic. A. true B. fake C. interesting D. old.",
+
+"[Antonym Choice:] He is a timid boy. A. shy B. bold C. quiet D. small.",
+
+"[Antonym Choice:] The water was shallow. A. deep B. clear C. cold D. muddy.",
+
+"[Antonym Choice:] The task was trivial. A. unimportant B. significant C. easy D. long.",
+
+"[Antonym Choice:] She was pessimistic about the future. A. hopeful B. sad C. worried D. angry.",
+
+"[Antonym Choice:] The room was dimly lit. A. brightly B. poorly C. darkly D. softly.",
+
+"[Antonym Choice:] He is a notorious criminal. A. famous B. unknown C. dangerous D. rich.",
+
+"[Antonym Choice:] The building was ancient. A. old B. modern C. tall D. beautiful.",
+
+"[Antonym Choice:] Her behavior was rational. A. logical B. irrational C. good D. strange.",
+
+"[Antonym Choice:] The meeting was fruitful. A. productive B. useless C. long D. successful.",
+
+"[Antonym Choice:] He is a frugal person. A. economical B. extravagant C. poor D. careful.",
+
+"[Antonym Choice:] The path was straight. A. crooked B. long C. wide D. smooth.",
+
+"[Antonym Choice:] She was indifferent to the news. A. uncaring B. concerned C. happy D. sad.",
+
+"[Antonym Choice:] The room was orderly. A. neat B. chaotic C. large D. clean.",
+
+"[Antonym Choice:] He is a humble man. A. modest B. arrogant C. poor D. kind.",
+
+"[Antonym Choice:] The news was depressing. A. sad B. uplifting C. boring D. expected.",
+
+"[Antonym Choice:] The task was complex. A. difficult B. simple C. long D. boring.",
+
+"[Antonym Choice:] She was reluctant to go. A. unwilling B. eager C. afraid D. happy.",
+
+"[Antonym Choice:] The room was stuffy. A. airy B. small C. dark D. hot.",
+
+"[Antonym Choice:] He is a clumsy person. A. awkward B. graceful C. tall D. strong.",
+
+"[Antonym Choice:] The news was vague. A. unclear B. precise C. interesting D. old.",
+
+"[Antonym Choice:] She was apathetic about the project. A. indifferent B. enthusiastic C. worried D. angry.",
+
+"[Antonym Choice:] The room was filthy. A. dirty B. spotless C. large D. dark.",
+
+"[Antonym Choice:] He is a cowardly soldier. A. afraid B. brave C. strong D. tall.",
+
+"[Sentence Completion:] Neither the teacher nor the students _______ present at the meeting. A. was B. were C. is D. are.",
+
+"[Sentence Completion:] The boy, along with his parents, _______ coming to the party. A. is B. are C. were D. have been.",
+
+"[Sentence Completion:] I _______ him since last year. A. didn’t see B. haven’t seen C. don’t see D. hadn’t seen.",
+
+"[Sentence Completion:] If I _______ you, I would accept the offer. A. am B. was C. were D. be.",
+
+"[Sentence Completion:] She is one of the girls who _______ always late. A. is B. are C. was D. has been.",
+
+"[Sentence Completion:] The news _______ very shocking. A. was B. were C. are D. have been.",
+
+"[Sentence Completion:] He prefers tea _______ coffee. A. than B. to C. for D. over.",
+
+"[Sentence Completion:] I look forward to _______ you soon. A. see B. seeing C. seen D. saw.",
+
+"[Sentence Completion:] The man _______ car was stolen is my uncle. A. who B. whose C. whom D. which.",
+
+"[Sentence Completion:] She _______ the book on the table yesterday. A. lay B. laid C. lied D. lain.",
+
+"[Sentence Completion:] He has been living here _______ ten years. A. since B. for C. during D. in.",
+
+"[Sentence Completion:] The bread was shared _______ the two children. A. among B. between C. with D. for.",
+
+"[Sentence Completion:] You _______ better see a doctor. A. had B. would C. should D. could.",
+
+"[Sentence Completion:] I _______ my homework before my father arrived. A. finished B. have finished C. had finished D. was finishing.",
+
+"[Sentence Completion:] The committee _______ divided in their opinions. A. was B. were C. is D. has been.",
+
+"[Sentence Completion:] He is the _______ of the two brothers. A. tall B. taller C. tallest D. more tall.",
+
+"[Sentence Completion:] She is _______ beautiful than her sister. A. more B. most C. very D. much.",
+
+"[Sentence Completion:] I _______ go to the market yesterday. A. don’t B. didn’t C. haven’t D. hadn’t.",
+
+"[Sentence Completion:] The book belongs _______ me. A. for B. to C. with D. by.",
+
+"[Sentence Completion:] He is good _______ Mathematics. A. in B. at C. with D. for."
+
+];
+
+const correctAnswers = [
+"B","B","B","B","B","B","B","B","B","C",
+"B","B","B","B","B","B","B","C","C","B",
+"B","B","B","B","B","B","C","B","B","B",
+"B","B","B","B","B","B","B","C","B","B",
+"B","B","B","B","B","B","B","B","B","A",
+"B","B","B","B","B","B","B","B","B","B",
+"A","B","B","B","A","B","B","B","A","B",
+"A","B","C","B","B","B","B","B","A","B",
+"B","B","B","B","B","B","B","B","B","B",
+"B","A","B","C","B","A","B","B","B","B",
+"B","B","B","B","B","B","B","B","B","B",
+];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 60 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 60;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+</script>
+</body>
+</html>
