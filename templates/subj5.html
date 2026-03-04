@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MATHEMATICS - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #a67e20;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a67e20;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #0066cc;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #D0842F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #0066cc;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a67e20;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #0066cc;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">MATHEMATICS - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+const tasks = [
+
+" A group of market women sell at least one of yam, plantain and maize. 12 of them sell maize, 10 sell yam and 14 sell plantain. 5 sell plantain and maize, 4 sell yam and maize, 2 sell yam and plantain only while 3 sell all the three items. How many women are in the group? A. 25 B. 19 C. 18 D. 17 ",
+
+" Evaluate: 16 × 16 × 2 A. 2 B. 0 C. 2 D. 1/2 ",
+
+" The population of a village decreased from 1,230 to 1,040 due to breakout of an epidemic. What is the percentage decrease in the population? A. 15.44% B. 15.43% C. 15.42% D. 15.45% ",
+
+" Find the amount if simple interest is paid yearly at 5% per annum for 3 years, on a principal of #200,000.00 A. #23,000.00 B. #30,000.00 C. #300,000.00 D. #230,000.00 ",
+
+" Solve 16^x = 0.25 A. -1/2 B. 1/2 C. -1/4 D. 1/4 ",
+
+" Simplify: (0.064)^(-1/3) A. 2.5 B. 0.25 C. 0.4 D. 5.0 ",
+
+" If log 10 = X, evaluate log 5 in terms of X. A. X B. X-1 C. 1-X D. X/2 ",
+
+" Convert 72 in base 10 to a number in base 3. A. 2200 B. 2100 C. 2210 D. 2110 ",
+
+" Find the value of x if 2^(x+1) = 32. A. 4 B. 5 C. 6 D. 3 ",
+
+" Simplify: √98 - √50 A. 2√2 B. 3√2 C. 4√2 D. 5√2 ",
+
+" Let '*' and '^' be two binary operations such that a * b = ab and a ^ b = 2a + b. Find (-4 * 2) ^ (7 * -1). A. -49 B. 64 C. 113 D. 15 ",
+
+" Evaluate the determinant of the matrix M = [[3, 4, 6], [2, 1, -1], [-1, 3, 5]] A. 20 B. 25 C. 30 D. 35 ",
+
+" y is inversely proportional to x and y = 4 when x = 1/2, find x when y = 10 A. 2 B. 10 C. 1/5 D. 1/10 ",
+
+" Factorize completely: ac - 2bc - a^2 + 4b^2 A. (a - 2b)(c + a - 2b) B. (a - 2b)(c - a - 2b) C. (a - 2b)(c + a + 2b) D. (a - 2b)(c - a + 2b) ",
+
+" If (x - 2) is a factor of px^3 + 2x^2 - 2x + 4, find the value of p. A. -1 B. 1 C. -2 D. 2 ",
+
+" Solve the inequality: 3x - 5 < 5x - 3 A. x > -1 B. x < -1 C. x > 1 D. x < 1 ",
+
+" Find the sum of the first 20 terms of the AP: 2, 5, 8, … A. 610 B. 590 C. 630 D. 650 ",
+
+" If the 4th term of a GP is 8 and the 7th term is 64, find the common ratio. A. 2 B. 3 C. 4 D. 1.5 ",
+
+" Solve for x: log(x^2 - 3x) = log 4 A. 4, -1 B. -4, 1 C. 4, 1 D. -4, -1 ",
+
+" The expression ax^2 + bx takes the value 6 when x = 1 and 10 when x = 2. Find a and b. A. a=1, b=5 B. a=-1, b=7 C. a=2, b=4 D. a=-2, b=8 ",
+
+" Find the angle subtended by an arc 33 cm long of a circle of diameter 28 cm. A. 105° B. 115° C. 120° D. 135° ",
+
+" Find the value of x if sin x = cos x for 0° < x < 90°. A. 30° B. 45° C. 60° D. 75° ",
+
+" The area of a triangle with sides 5 cm, 12 cm and 13 cm is: A. 30 cm² B. 60 cm² C. 65 cm² D. 78 cm² ",
+
+" A ladder 10 m long leans against a vertical wall. If the ladder makes an angle of 60° with the ground, find the height of the wall. A. 5 m B. 5√3 m C. 10√3 m D. 8 m ",
+
+" Find the distance between the points (2, 3) and (5, 7). A. 4 B. 5 C. 6 D. 7 ",
+
+" The sum of the interior angles of a regular polygon is 1080°. How many sides does it have? A. 6 B. 7 C. 8 D. 9 ",
+
+" Find the gradient of the line passing through (1, 2) and (3, 8). A. 2 B. 3 C. 4 D. 5 ",
+
+" The volume of a cylinder with radius 7 cm and height 10 cm is: (Take π = 22/7) A. 1540 cm³ B. 770 cm³ C. 154 cm³ D. 2200 cm³ ",
+
+" Find the equation of the line with gradient 2 passing through (1, 3). A. y = 2x + 1 B. y = 2x - 1 C. y = 2x + 3 D. y = 2x - 3 ",
+
+" If tan θ = 3/4, find sin θ. A. 3/5 B. 4/5 C. 3/7 D. 4/7 ",
+
+" Differentiate y = 3x^2 - 5x + 2 with respect to x. A. 6x - 5 B. 3x - 5 C. 6x + 2 D. 6x^2 - 5 ",
+
+" Find the derivative of y = sin 2x. A. cos 2x B. 2 cos 2x C. -2 cos 2x D. 2 sin x ",
+
+" Evaluate ∫ (2x + 3) dx. A. x^2 + 3x + c B. 2x^2 + 3x + c C. x^2 + c D. 2x + c ",
+
+" Find the maximum value of y = 4x - x^2. A. 2 B. 4 C. 8 D. 0 ",
+
+" Evaluate ∫ from 0 to 1 of (4x - 6x^2) dx. A. 0 B. 1 C. -1 D. 2 ",
+
+" If y = x^3, find dy/dx at x = 2. A. 6 B. 8 C. 12 D. 4 ",
+
+" Find the integral of cos x dx. A. sin x + c B. -sin x + c C. tan x + c D. sec x + c ",
+
+" The slope of the curve y = x^2 at the point (1, 1) is: A. 1 B. 2 C. 3 D. 4 ",
+
+" Differentiate y = (2x + 1)^3. A. 3(2x + 1)^2 B. 6(2x + 1)^2 C. 2(2x + 1)^2 D. (2x + 1)^2 ",
+
+" Evaluate ∫ (1/x) dx. A. log x + c B. e^x + c C. x^2 + c D. 1 ",
+
+" Find the mean of the numbers: 2, 4, 6, 8, 10. A. 5 B. 6 C. 7 D. 8 ",
+
+" The median of the data: 3, 5, 7, 2, 8, 10, 12 is: A. 7 B. 5 C. 8 D. 10 ",
+
+" A bag contains 3 red balls and 5 blue balls. If a ball is picked at random, find the probability that it is red. A. 3/5 B. 3/8 C. 5/8 D. 1/2 ",
+
+" Find the mode of the following distribution: 2, 3, 3, 4, 5, 5, 5, 6. A. 3 B. 4 C. 5 D. 6 ",
+
+" The variance of a set of numbers is 16. Find the standard deviation. A. 4 B. 8 C. 32 D. 2 ",
+
+" Two dice are thrown once. Find the probability of getting a sum of 7. A. 1/6 B. 1/12 C. 1/36 D. 5/36 ",
+
+" Find the range of the numbers: 12, 15, 10, 25, 18. A. 10 B. 15 C. 25 D. 13 ",
+
+" The probability of an event happening is 0.3. What is the probability of it not happening? A. 0.3 B. 0.7 C. 1.0 D. 0.5 ",
+
+" In a class of 40 students, 25 like Math and 20 like English. If 10 like both, how many like neither? A. 5 B. 10 C. 15 D. 0 ",
+
+" Find the mean deviation of the numbers: 1, 2, 3. A. 0.67 B. 1.0 C. 0.5 D. 0 ",
+
+" Simplify: (27^(1/3) * 16^(1/4)) / 4^(1/2) A. 3 B. 6 C. 1.5 D. 12 ",
+
+" Express 0.0000456 in standard form. A. 4.56 * 10^-5 B. 4.56 * 10^-6 C. 4.56 * 10^-4 D. 4.56 * 10^-7 ",
+
+" Find the value of x if log_x 64 = 3. A. 2 B. 4 C. 8 D. 16 ",
+
+" Convert 10110 in base 2 to base 10. A. 20 B. 22 C. 24 D. 26 ",
+
+" Simplify: (√3 + √2)(√3 - √2) A. 1 B. 5 C. √6 D. 2√3 ",
+
+" Find the LCM of 12, 18 and 24. A. 36 B. 48 C. 72 D. 144 ",
+
+" A man buys a car for #500,000 and sells it for #450,000. Find his percentage loss. A. 5% B. 10% C. 15% D. 20% ",
+
+" Simplify: (2/3 + 1/4) / (1/2 - 1/6) A. 11/4 B. 11/12 C. 11/8 D. 11/6 ",
+
+" Find the HCF of 24, 36 and 48. A. 6 B. 12 C. 18 D. 24 ",
+
+" If 3^(2x) = 81, find x. A. 1 B. 2 C. 3 D. 4 ",
+
+" Solve the simultaneous equations: 2x + y = 7, x - y = 2. A. x=3, y=1 B. x=1, y=3 C. x=4, y=-1 D. x=2, y=3 ",
+
+" Find the roots of the quadratic equation: x^2 - 5x + 6 = 0. A. 2, 3 B. -2, -3 C. 1, 6 D. -1, -6 ",
+
+" If y varies directly as x and y = 12 when x = 4, find y when x = 7. A. 14 B. 21 C. 28 D. 35 ",
+
+" Simplify: (x^2 - 4) / (x - 2) A. x - 2 B. x + 2 C. x + 4 D. x - 4 ",
+
+" Find the 10th term of the AP: 5, 9, 13, … A. 37 B. 41 C. 45 D. 49 ",
+
+" If the sum of the first n terms of an AP is n^2 + n, find the 5th term. A. 10 B. 12 C. 14 D. 16 ",
+
+" Solve for x: 2^(2x) - 5(2^x) + 4 = 0. A. 0, 2 B. 1, 4 C. 2, 4 D. 0, 1 ",
+
+" Find the inverse of the matrix [[1, 2], [3, 4]]. A. [[-2, 1], [1.5, -0.5]] B. [[4, -2], [-3, 1]] C. [[-2, 1], [1, -0.5]] D. [[1, 0], [0, 1]] ",
+
+" If x + 1/x = 3, find x^2 + 1/x^2. A. 7 B. 9 C. 11 D. 5 ",
+
+" Factorize: 3x^2 - 10x + 3. A. (3x - 1)(x - 3) B. (3x + 1)(x + 3) C. (3x - 3)(x - 1) D. (3x + 3)(x + 1) ",
+
+" Find the area of a circle with circumference 44 cm. (Take π = 22/7) A. 154 cm² B. 77 cm² C. 308 cm² D. 44 cm² ",
+
+" The angle of elevation of the top of a tower from a point 20 m away is 30°. Find the height of the tower. A. 20√3 m B. 20/√3 m C. 10 m D. 10√3 m ",
+
+" Find the midpoint of the line joining (2, 4) and (6, 8). A. (4, 6) B. (2, 2) C. (8, 12) D. (4, 4) ",
+
+" The volume of a sphere with radius 3 cm is: (Take π = 22/7) A. 113.14 cm³ B. 36π cm³ C. 12π cm³ D. 18π cm³ ",
+
+" If cos θ = 0.6, find tan θ. A. 0.75 B. 1.33 C. 0.8 D. 1.25 ",
+
+" Find the interior angle of a regular hexagon. A. 60° B. 90° C. 120° D. 150° ",
+
+" The area of a sector of a circle with radius 7 cm and angle 60° is: A. 25.67 cm² B. 12.83 cm² C. 77 cm² D. 154 cm² ",
+
+" Find the distance from the origin to the point (3, 4). A. 5 B. 7 C. 12 D. 25 ",
+
+" If the area of a square is 64 cm², find its perimeter. A. 16 cm B. 32 cm C. 64 cm D. 8 cm ",
+
+" Find the value of sin 150°. A. 0.5 B. -0.5 C. √3/2 D. -√3/2 ",
+
+" Find the derivative of y = e^(2x). A. e^(2x) B. 2e^(2x) C. 0.5e^(2x) D. e^x ",
+
+" Evaluate ∫ from 1 to 2 of x^2 dx. A. 7/3 B. 8/3 C. 1/3 D. 3 ",
+
+" Find the coordinates of the turning point of y = x^2 - 4x + 5. A. (2, 1) B. (2, 5) C. (4, 5) D. (0, 5) ",
+
+" Differentiate y = log(3x). A. 1/x B. 3/x C. 1/3x D. 1 ",
+
+" Find the second derivative of y = x^4. A. 4x^3 B. 12x^2 C. 12x D. 4x ",
+
+" Evaluate ∫ sin x dx from 0 to π/2. A. 1 B. 0 C. -1 D. π/2 ",
+
+" If the velocity of a particle is v = 2t + 3, find the displacement at t = 2 if s = 0 at t = 0. A. 10 B. 7 C. 5 D. 12 ",
+
+" Find the derivative of y = x sin x. A. sin x + x cos x B. cos x C. x cos x D. sin x - x cos x ",
+
+" Evaluate ∫ (1/x^2) dx. A. -1/x + c B. 1/x + c C. log x^2 + c D. -2/x^3 + c ",
+
+" The rate of change of the area of a circle with respect to its radius r is: A. πr^2 B. 2πr C. π D. 2π ",
+];
+
+const correctAnswers = [
+"A","C","C","D","A","A","C","B","A","A",
+"D","C","C","B","A","A","A","A","A","C",
+"D","B","A","B","B","C","B","A","A","A",
+"A","B","A","B","B","C","A","B","B","A",
+"B","A","B","C","A","A","B","B","A","A",
+"A","A","B","B","A","C","B","A","B","B",
+"A","A","B","B","B","A","D","A","A","A",
+"A","B","A","B","B","C","A","A","B","A",
+"B","A","A","A","B","A","A","A","A","B"
+];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+</script>
+</body>
+</html>
