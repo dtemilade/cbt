@@ -439,8 +439,15 @@ function loadQuestion(index) {
   prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
   nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
 
+  // Disable prev button at the start
   prevBtn.disabled = index === 0;
-  nextBtn.disabled = index === 40 - 1;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
 }
 
 function saveAnswer() {
