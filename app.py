@@ -42,7 +42,7 @@ def subj4():
     return render_template('subj4.html')
 
 @app.route('/subj5')
-def subj4():
+def subj5():
     return render_template('subj5.html')
 
 if __name__ == '__main__':
