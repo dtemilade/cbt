@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>COMMERCE - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #a571e4;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a571e4;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #a571e4;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #a571e4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #a571e4;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #a571e4;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #a571e4;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #a571e4;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #a571e4;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">COMMERCE - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+const tasks = [
+
+"The activity of buying goods in bulk and selling in small quantities to retailers is known as ___ A. wholesaling B. retailing C. merchandising D. assembling",
+
+"The production of goods and services in anticipation of demand is made possible by ___ A. warehousing B. packaging C. branding D. advertising",
+
+"The payment made by a speculator to the buyer when he is unable to deliver stocks on the agreed date is A. contango B. arbitrage C. backwardation D. franco",
+
+"The principle which requires the insurance company to disclose to the proposer all material facts of the risk to be covered is A. uberrimae fidei B. subrogation C. contribution D. proximate cause",
+
+"Another name or term for a dishonoured cheque is A. a bearer cheque B. an open cheque C. a bounced cheque D. an order cheque",
+
+"Current account holders withdraw money through A. transfer B. credit cards C. withdrawal form D. cheque",
+
+"An agent who has to sell perishable goods without the prior authority of the owner becomes an agent by A. estoppel B. conduct C. necessity D. ratification",
+
+"At the collapse of a business enterprise, the person appointed to dispose off the assets is called A. an auctioneer B. an auditor C. a broker D. a liquidator",
+
+"Which of the following attracts only interest but leaves the capital unpaid? A. a development bond B. a long term loan C. an irredeemable bond D. redeemable bond",
+
+"The process of dividing tasks into jobs and departments and delegating authority is known as A. organizing B. staffing C. directing D. leading",
+
+"The macro-environmental forces and trends which are a constraint on business operations are referred to as A. internal factors B. technological factors C. economic factors D. external factors",
+
+"A document that lists the goods that are being sent from one place to another is A. mail transfer B. shipping note C. consular invoice D. bill of lading",
+
+"The maximum number of shareholders in a public liability company is A. twenty B. one hundred C. fifty D. unlimited",
+
+"Which of the following is NOT part of Pre-Sales Service? A. granting of credit or hire purchase sales facilities B. assisting the prospective buyer to set up facilities for storage C. dispatching of quotation and price list D. providing detailed information about goods to be purchased",
+
+"Which of the following does a seller send in reply to a letter of inquiry? A. quotation B. credit note C. debit note D. delivery note",
+
+"The sum which the insured pays periodically to his insurance company is called A. a commission B. an indemnity C. a policy D. a premium",
+
+"The main objective of nationalization of industries is to A. prevent existing firms from liquidation B. make more profit for the government C. prevent all aliens from taking part in the business activities of a country D. bring an industry under state ownership and control",
+
+"Closing stock is also known as A. stock at close B. balance brought forward C. opening inventory D. stock at beginning",
+
+"An article used as a means of exchange in the early days of trade in West Africa was A. cedis B. cowrie C. dalasi D. naira",
+
+"The provision of services is classified under A. batch production B. flow production C. secondary production D. tertiary production",
+
+"The growth of commerce is not enhanced by A. development of modern forms of production B. government participation in business C. high population growth D. low per capita income",
+
+"One of the products of the construction industry is a A. piece of cloth B. bag of cement C. television D. bridge",
+
+"The service of a retailer is part of production because it A. creates a link between consumers and producers B. enables finished goods to reach consumers C. increases consumers standard of living D. is a commercial occupation",
+
+"The principle of span of control stipulates that? A. The number of employees reporting to one superior should be kept to a workable maximum B. An employee should report to only one superior C. Managers must demand accountability from their subordinates D. Resources have to be economized within the various divisions",
+
+"The main advantage of a sole trader is the freedom to? A. employ anyone he likes B. take quick decision C. seek advise from any source D. plough all the profits",
+
+"The major objective of corporate mergers is to? A. minimize the effect of taxation B. increase financial advantage C. enhance economies of scale D. facilitate profit maximization",
+
+"A provision in the charter of a company which gives holders of common stock the first option to purchase additional issues of the firm's common stock is the A. pre-emptive right B. over-subscription right C. ex-dividend right D. shareholders right",
+
+"The conversion of raw materials into finished products creates A. form utility B. time utility C. marginal utility D. place utility",
+
+"A distinguishing characteristic of a limited liability company is that it A. is a collection of many sole proprietors B. is a multiple partnership C. has limited resources D. can sue and be sued",
+
+"Freight note is a document A. issued by a shipping company giving details of charges B. used by government to transport goods from one country to another C. used for payment for imported goods D. given by an importer to pay for goods at a future period",
+
+"Which of the following are the components of commerce? A. trading and advertising B. warehousing and transportation C. packing and branding D. trade and auxiliaries to trade",
+
+"Extractive industries may also be denominated as A. direct industries B. servicing industries C. indirect industries D. primary industries",
+
+"A common requirement for public and private limited companies in Nigeria is that A. a shareholder cannot transfer his shares without permission B. shares cannot be offered on the stock exchange C. their annual accounts are made available to the Corporate Affairs Commission D. shares can be offered for sale through an issuing house",
+
+"A partnership may be automatically dissolved due to the following factors except A. Court verdict B. Joint decision C. Admission of new partners D. Bankruptcy of a partner",
+
+"One of the disadvantages of Sole Proprietorship is A. It requires small operations B. It involves small capital C. It lacks specialization D. Grants from government",
+
+"In the formation of a limited liability company, the following documents are prepared except A. Memorandum of Association B. Article of Association C. Statement of Nominal Capital D. Prospectus",
+
+"The process of winding up or bringing a company to an end is A. Dissolution B. Liquidation C. Integrating D. Merger",
+
+"Which of the following regulates and controls the activities in the Nigerian Stock Exchange? A. CBN B. BPE C. SEC D. NDIC",
+
+"The process of buying and selling goods and services over the internet is A. E-commerce B. E-mail C. E-banking D. E-payment",
+
+"A document issued by a carrier to an exporter acknowledging receipt of goods for shipment is A. Bill of exchange B. Bill of lading C. Certificate of origin D. Consular invoice",
+
+"The person who undertakes the risk of a business is the A. Manager B. Entrepreneur C. Shareholder D. Director",
+
+"A market where existing securities are traded is the A. Primary market B. Secondary market C. Money market D. Commodity market",
+
+"The difference between the value of a country's visible exports and visible imports is A. Balance of payments B. Balance of trade C. Terms of trade D. Current account",
+
+"Which of the following is a function of the Central Bank? A. Accepting deposits from the public B. Lending to individuals C. Issuing of currency D. Providing insurance services",
+
+"A contract of insurance is based on the principle of A. Caveat emptor B. Utmost good faith C. Res ipsa loquitur D. Ultra vires",
+
+"The process of moving goods from the producer to the final consumer is A. Production B. Consumption C. Distribution D. Exchange",
+
+"A wholesaler who carries a wide variety of goods but in limited quantities is a A. General wholesaler B. Specialist wholesaler C. Rack jobber D. Cash and carry wholesaler",
+
+"The document that gives a person the right to act on behalf of another is A. Power of attorney B. Proxy C. Articles of association D. Memorandum of association",
+
+"Which of the following is a source of short-term finance for a business? A. Debentures B. Bank overdraft C. Issue of shares D. Long-term loans",
+
+"The study of how people make choices to satisfy their wants is A. Commerce B. Economics C. Accounting D. Management",
+
+"A person who buys shares in a company is a A. Creditor B. Debtor C. Shareholder D. Partner",
+
+"The reward for capital as a factor of production is A. Rent B. Wages C. Interest D. Profit",
+
+"A document used to correct an undercharge in an invoice is A. Credit note B. Debit note C. Proforma invoice D. Delivery note",
+
+"The process of combining two or more companies to form a new one is A. Acquisition B. Merger C. Liquidation D. Diversification",
+
+"Which of the following is a function of a commercial bank? A. Controlling inflation B. Managing the national debt C. Accepting savings deposits D. Formulating monetary policy",
+
+"The tax paid on goods produced within a country is A. Customs duty B. Excise duty C. Value added tax D. Income tax",
+
+"A situation where a country's exports exceed its imports is a A. Trade deficit B. Trade surplus C. Balanced trade D. Trade barrier",
+
+"The document that contains the internal rules and regulations of a company is A. Memorandum of Association B. Articles of Association C. Prospectus D. Certificate of Incorporation",
+
+"A person who sells goods in small quantities to the final consumer is a A. Wholesaler B. Retailer C. Broker D. Agent",
+
+"The process of creating awareness for a product is A. Warehousing B. Advertising C. Branding D. Packaging",
+
+"Which of the following is a characteristic of a partnership? A. Unlimited liability B. Perpetual succession C. Minimum of seven members D. Shares are traded on the stock exchange",
+
+"The document issued by a company inviting the public to subscribe for shares is A. Memorandum of Association B. Articles of Association C. Prospectus D. Certificate of Trading",
+
+"A market where short-term funds are borrowed and lent is the A. Capital market B. Money market C. Foreign exchange market D. Stock market",
+
+"The principle of indemnity in insurance means that the insured should be A. Paid more than the loss B. Restored to his former financial position C. Paid the full sum assured regardless of the loss D. Compensated for emotional distress",
+
+"A document used to acknowledge the receipt of goods by a warehouse keeper is A. Delivery note B. Warehouse warrant C. Dock warrant D. Consignment note",
+
+"The process of transferring ownership of a public enterprise to private individuals is A. Nationalization B. Privatization C. Commercialization D. Indigenization",
+
+"Which of the following is a barrier to international trade? A. Free trade zones B. Common currency C. Tariffs D. Trade fairs",
+
+"The reward for land as a factor of production is A. Interest B. Profit C. Rent D. Wages",
+
+"A document used to request for goods from a supplier is A. Invoice B. Order C. Quotation D. Inquiry",
+
+"The process of ensuring that the right quality and quantity of goods are available when needed is A. Quality control B. Inventory management C. Production planning D. Marketing research",
+
+"Which of the following is a function of the Nigerian Export Promotion Council (NEPC)? A. Regulating imports B. Promoting non-oil exports C. Controlling the exchange rate D. Collecting customs duties",
+
+"A person who represents a principal in business transactions is an A. Employee B. Agent C. Partner D. Shareholder",
+
+"The document that defines the relationship between a company and the outside world is A. Articles of Association B. Memorandum of Association C. Prospectus D. Certificate of Incorporation",
+
+"A situation where a single seller controls the entire market for a product is a A. Monopoly B. Oligopoly C. Perfect competition D. Monopolistic competition",
+
+"The process of adding value to a product through branding and packaging is A. Merchandising B. Product differentiation C. Market segmentation D. Sales promotion",
+
+"Which of the following is a source of long-term finance for a company? A. Trade credit B. Bank overdraft C. Debentures D. Factoring",
+
+"The document used to inform a customer that his account has been credited is A. Debit note B. Credit note C. Statement of account D. Invoice",
+
+"The process of dividing a market into distinct groups of buyers is A. Market research B. Market segmentation C. Market penetration D. Market skimming",
+
+"A person who specializes in buying and selling shares on behalf of others is a A. Jobber B. Broker C. Underwriter D. Speculator",
+
+"The study of the activities involved in the exchange of goods and services is A. Management B. Commerce C. Marketing D. Economics"
+
+];
+
+// Correct option per question (A–D)
+const correctAnswers = [
+"A","A","C","A","C","D","C","D","C","A",
+"D","B","D","A","A","D","D","A","B","D",
+"D","D","B","A","B","C","A","A","D","A",
+"D","D","C","C","C","D","B","C","A","B",
+"B","B","B","C","B","C","A","A","B","B",
+"C","C","B","B","C","B","B","B","B","B",
+"A","C","B","B","B","B","C","C","B","B",
+"B","B","B","A","B","C","B","B","B","B"
+];
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+</script>
+</body>
+</html>

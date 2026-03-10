@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ACCOUNTING - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #518e67;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #518e67;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #518e67;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #518e67;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #518e67;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #518e67;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #518e67;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #518e67;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #518e67;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">ACCOUNTING - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+// QUESTIONS
+const tasks = [
+
+"Dairo and Segun are in partnership sharing profits and losses in the ratio 2:3 respectively. Interest on drawings is 10%, interest on capital is 5%, profit for the year is ₦36,000, and Segun's salary is ₦10,000. Segun's share of profit is ___? A. ₦12,000 B. ₦21,400 C. ₦14,600 D. ₦16,400",
+
+"Which of the following has the same features as the profit and loss account in a non-profit organization? A. Non-profit account B. Profit and loss account C. Income and expenditure account D. Receipts and payment account",
+
+"Salaries in arrears is treated in the balance sheet as a ___ A. Current asset B. Current liability C. Long term liability D. Fixed asset",
+
+"An advantage of the FIFO method of stock valuation is that A. It is calculated at the end of the year B. Its flow of cost is in sequence with the flow of stock C. It is progressive in nature D. It serves as a control during inflation",
+
+"Which of these is the main source document for recording cash paid into the bank? A. Invoice B. Credit note C. Cheque book D. Pay-in-slip",
+
+"The amount by which assets exceed liabilities is known as A. Capital B. Premium C. Bonus D. Provision",
+
+"The authority warrant issued prior to the approval of the appropriate bill at the beginning of the year is A. Contingencies B. Reserved expenditure warrant C. Annual general warrant D. Provisional general warrant",
+
+"Given: Debtors opening ₦4000, Debtors closing ₦1500, Cash received from debtors ₦8500, Bad debts written off ₦350, Discount allowed ₦500. What is the amount of sales for the year? A. ₦6850 B. ₦6650 C. ₦3850 D. ₦1550",
+
+"The authority to transfer funds from one head to another within the same organization is called A. Fund B. Warrant C. Vote D. Virement",
+
+"Goodwill can be introduced when A. The business suffers high loss B. The business is being expanded C. The partnership experiences super profit D. A new member is admitted",
+
+"Goods bought on credit are first entered in the A. Cash book B. Journal proper C. Sales day book D. Purchases day book",
+
+"An example of fictitious assets is A. Stock B. Overdraft C. Preliminary expenses D. Profit",
+
+"A public limited liability company can get additional funds through the issue of A. Cheque B. Accumulated fund C. Consolidated fund D. Debenture",
+
+"The short-term solvency of a company is determined with which ratio? A. Debtors to equity B. Current ratio C. Acid test ratio D. Gross profit margin",
+
+"Sales ledger control account contains the total amount in respect of A. Investors B. Creditors C. Shareholders D. Debtors",
+
+"Which of the following stock valuation methods is suitable under inflationary conditions? A. LIFO B. Simple average C. FIFO D. Weighted average",
+
+"Ordinary shareholders enjoy the following rights except the right to A. Receive dividends at a predetermined rate B. Vote at annual general meetings C. Elect the board of directors D. Participate in additional issues of shares",
+
+"Capital and revenue expenditures of government are usually accounted for under funds which include A. Technical, special trust and commercial funds B. Personal advances, technical and public funds C. Personal advances, treasury clearance and special trust funds D. Commercial loans and treasury clearance funds",
+
+"Under which of the following conditions is a partnership dissolved? A. Change of the partnership's head office B. Purchase of a large quantity of fixed assets C. Admission of a new partner D. Retirement of a manager who is not a partner",
+
+"Which of the following accounting records are source documents? A. Journals and ledgers B. Sales invoice and debit note C. Sales invoice and cashbook D. Cashbook and debit note",
+
+"In preparing accounting records, the owners of a business and the business are treated as A. Separate legal entities B. Partners C. The same person D. Having business relationship",
+
+"Transactions are recorded or posted to the ledger in line with A. Accounting Concept B. Source document C. Double Entry Principle D. Data collection",
+
+"Rent ₦50,000 was paid by Mr. Roi to his landlord by cheque. How will this be recorded? A. Dr Rent A/c; Dr Bank A/c B. Dr Bank A/c; Cr Rent A/c C. Dr Rent A/c; Cr Bank A/c D. Dr Rent A/c; Cr Mr. Roi",
+
+"A statement in a double-entry system in which are recorded all the transactions of one specific class is called A. Double entry system B. Ledger C. Cash Book D. Petty Cash Book",
+
+"The advantage of double entry is that A. It is easy to prepare the final account B. It increases assets C. It has cash and bank columns D. It disburses cash",
+
+"Accounts can be classified into A. Cash and credit transactions B. Cash and credit accounts C. Personal and private accounts D. Personal and impersonal accounts",
+
+"The accounting concept which states that for every debit entry there must be a corresponding credit entry is A. Entity concept B. Accrual concept C. Double entry concept D. Going concern concept",
+
+"A credit note is a document used to record A. Goods bought on credit B. Goods sold on credit C. Returns inwards D. Returns outwards",
+
+"The process of recording transactions in the journal is called A. Posting B. Journalizing C. Balancing D. Summarizing",
+
+"A petty cash book is used to record A. Large payments B. Small payments C. Credit sales D. Credit purchases",
+
+"The difference between the total of the debit side and the total of the credit side of an account is called A. Profit B. Loss C. Balance D. Surplus",
+
+"A trial balance is prepared to test the A. Arithmetical accuracy of the ledger B. Financial position of the business C. Profitability of the business D. Liquidity of the business",
+
+"Which of the following is a nominal account? A. Cash account B. Bank account C. Rent account D. Furniture account",
+
+"The document sent by a seller to a buyer to correct an overcharge is A. Debit note B. Credit note C. Invoice D. Statement of account",
+
+"Depreciation is the A. Increase in the value of a fixed asset B. Decrease in the value of a fixed asset due to wear and tear C. Cost of repairing a fixed asset D. Sale of a fixed asset",
+
+"The method of depreciation where the same amount is charged every year is A. Reducing balance method B. Straight line method C. Sum of the years' digits method D. Revaluation method",
+
+"A bank reconciliation statement is prepared to reconcile the differences between A. Cash book and ledger B. Cash book and bank statement C. Bank statement and trial balance D. Ledger and trial balance",
+
+"An unpresented cheque is a cheque A. Issued by the business but not yet presented to the bank B. Received by the business but not yet paid into the bank C. Dishonoured by the bank D. Lost in transit",
+
+"The capital of a non-profit organization is called A. Share capital B. Accumulated fund C. Working capital D. Reserve fund",
+
+"In a partnership, the document that contains the rules governing the relationship between partners is A. Partnership deed B. Articles of association C. Memorandum of association D. Prospectus",
+
+"The reward for a partner who provides capital but does not take part in management is A. Salary B. Commission C. Interest on capital D. Share of profit",
+
+"When a new partner is admitted, the profit-sharing ratio A. Remains the same B. Increases C. Decreases D. Changes",
+
+"The account prepared to show the distribution of profits among partners is A. Profit and loss account B. Appropriation account C. Trading account D. Capital account",
+
+"A company that can invite the public to subscribe for its shares is a A. Private limited company B. Public limited company C. Partnership D. Sole proprietorship",
+
+"The maximum amount of capital a company is authorized to issue is A. Issued capital B. Called-up capital C. Authorized capital D. Paid-up capital",
+
+"Debentures are A. Shares in a company B. Loans to a company C. Profits of a company D. Assets of a company",
+
+"The part of the profit of a company paid to shareholders is A. Interest B. Dividend C. Commission D. Bonus",
+
+"Manufacturing account is prepared to determine the A. Cost of production B. Gross profit C. Net profit D. Cost of sales",
+
+"Prime cost consists of A. Direct materials and direct labor B. Direct materials, direct labor, and direct expenses C. Factory overheads D. Administrative expenses",
+
+"The process of converting raw materials into finished goods is A. Trading B. Manufacturing C. Distribution D. Marketing",
+
+"In government accounting, the main source of revenue is A. Loans B. Grants C. Taxes D. Fines",
+
+"The document that shows the estimated revenue and expenditure of government for a year is A. Budget B. Balance sheet C. Trial balance D. Cash book",
+
+"The Consolidated Revenue Fund is used to A. Pay for specific projects B. Pay for all government expenditures C. Keep money for future use D. Pay for local government activities",
+
+"The officer responsible for the management of government funds is the A. Auditor General B. Accountant General C. Minister of Finance D. Governor of Central Bank",
+
+"Which of the following is an intangible asset? A. Land B. Building C. Goodwill D. Machinery",
+
+"The accounting equation is A. Assets = Liabilities + Capital B. Assets = Liabilities - Capital C. Capital = Assets + Liabilities D. Liabilities = Assets + Capital",
+
+"A debit entry in the cash book represents A. Cash payment B. Cash receipt C. Credit sale D. Credit purchase",
+
+"The book of original entry for returns outwards is A. Sales day book B. Purchases day book C. Returns outwards journal D. Returns inwards journal",
+
+"A suspense account is used to A. Record profits B. Record losses C. Temporarily balance a trial balance D. Record capital",
+
+"The error of recording a transaction in the wrong class of account is an error of A. Omission B. Commission C. Principle D. Original entry",
+
+"The ratio that measures the ability of a business to pay its current liabilities is the A. Profitability ratio B. Liquidity ratio C. Efficiency ratio D. Leverage ratio",
+
+"Gross profit is calculated as A. Sales - Cost of goods sold B. Sales - Expenses C. Net profit + Expenses D. Opening stock + Purchases",
+
+"Net profit is calculated as A. Gross profit - Expenses B. Sales - Cost of goods sold C. Assets - Liabilities D. Capital + Profit",
+
+"The document used to record the movement of stock is A. Bin card B. Invoice C. Receipt D. Cheque",
+
+"The cost of transporting goods to the business premises is A. Carriage outwards B. Carriage inwards C. Freight charges D. Insurance",
+
+"Which of the following is a current asset? A. Land B. Building C. Stock D. Machinery",
+
+"Which of the following is a current liability? A. Loan B. Debenture C. Creditors D. Capital",
+
+"The process of checking the accuracy of the ledger by comparing it with the trial balance is A. Auditing B. Balancing C. Posting D. Reconciling",
+
+"The accounting period usually covers A. 6 months B. 12 months C. 18 months D. 24 months",
+
+"The concept that assumes a business will continue to operate for the foreseeable future is A. Entity concept B. Going concern concept C. Accrual concept D. Consistency concept",
+
+"The concept that requires transactions to be recorded at their original cost is A. Cost concept B. Money measurement concept C. Realization concept D. Dual aspect concept",
+
+"The concept that requires revenue and expenses to be matched in the same period is A. Matching concept B. Prudence concept C. Materiality concept D. Objectivity concept",
+
+"The concept that requires accounting methods to be applied consistently from year to year is A. Consistency concept B. Prudence concept C. Accrual concept D. Entity concept",
+
+"The concept that requires caution in the preparation of accounts is A. Prudence concept B. Materiality concept C. Objectivity concept D. Matching concept",
+
+"The concept that requires only transactions that can be expressed in monetary terms to be recorded is A. Money measurement concept B. Entity concept C. Cost concept D. Realization concept",
+
+"A debit balance in the bank statement represents A. Cash at bank B. Bank overdraft C. Loan D. Deposit",
+
+"A credit balance in the cash book represents A. Cash at bank B. Bank overdraft C. Cash in hand D. Profit",
+
+"The document used to record the sale of goods for cash is A. Invoice B. Receipt C. Credit note D. Debit note",
+
+"The document used to record the purchase of goods for cash is A. Invoice B. Receipt C. Credit note D. Debit note",
+
+"The study of the principles and practice of accounting is A. Bookkeeping B. Accounting C. Auditing D. Management"
+
+];
+
+// Correct option per question (A–D)
+const correctAnswers = [
+"C","C","B","B","D","A","D","A","D","D",
+"D","C","D","B","D","A","A","C","C","B",
+"A","C","C","B","A","D","C","C","B","B",
+"C","A","C","B","B","B","B","A","B","A",
+"C","D","B","B","C","B","B","A","B","B",
+"C","A","B","B","C","A","B","C","C","C",
+"B","A","A","A","B","C","C","A","B","B",
+"A","A","A","A","A","B","B","B","B","B"
+];
+
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+</script>
+</body>
+</html>

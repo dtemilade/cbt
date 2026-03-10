@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LITERATURE-IN-ENGLISH - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #bc71ae;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #bc71ae;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #bc71ae;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #bc71ae;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #bc71ae;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #bc71ae;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: bc71ae;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #bc71ae;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #bc71ae;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">LITERATURE-IN-ENGLISH - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+let userName = "";
+
+while (!userName || userName.trim() === "") {
+  userName = prompt("Enter your full name (required):");
+}
+
+const tasks = [
+
+"A limerick has A. ornate style, humour, irony and seven lines B. formal and elaborate style and humour C. humour, rhyme scheme and five lines D. a stinging climax, rhyme scheme, and five lines",
+
+"The process of creating characters and endowing them with certain attitudes is A. Action B. Character C. Characterization D. Dramatis personae",
+
+"(Based on BAT) “Bat! Creatures that hang themselves up like an old rag, to sleep, And disgustingly upside down.” The theme of this excerpt is A. All of the above B. the poet’s right to individual choice C. the poet’s admiration of the beauty of nature D. the poet’s appalling remarks about the bird",
+
+"The writing convention in which the events in a narrative are scrambled as they come to the writer’s mind without any attempt to arrange them in orderly sequence is called A. psycho-consciousness styles B. narrator’s mind style C. shifting style D. stream of consciousness",
+
+"Using the name of one thing for something else with which it is closely associated is A. paradox B. parody C. parallelism D. metonymy",
+
+"Football is the only sport on earth that can be considered truly global… According to the excerpt, football is A. played only in Lagos slums B. footballers like Marley’s music C. popular but cheap D. a universal game",
+
+"“The commission has the power to investigate, to conciliate to hold hearings…” The rhetorical device used in the excerpt is A. Irony B. Personification C. Hyperbole D. Parallelism",
+
+"“Lonely road, Not a star, Lonely road, Shadows far, And quiet” (Peter Abraham). The rhyme scheme in the excerpt is A. abcdec B. ababc C. babac D. aabbc",
+
+"(Based on Alex Agyei-Agyiri’s Unexpected Joy at Dawn) The setting of the novel is A. Nigeria and Ghana B. Nigeria and Togo C. Ghana and Niger D. Nigeria and Benin",
+
+"(Based on Alex Agyei-Agyiri’s Unexpected Joy at Dawn) Wachuk in the novel is A. the cigarette seller B. Niyi’s friend C. Idem’s husband D. the alcohol seller",
+
+"One of the following writers is better known as a playwright than as a novelist A. C. Achebe B. C. Ekwensi C. W. Soyinka D. J.P Clark",
+
+"A narrative poem must A. preach a sermon B. tell a story C. describe natural scenery D. argue a question",
+
+"Literature is studied as a subject at school because A. it exposes students to the realities of life B. it provides entertainment C. it merely gives additional work to students D. it teaches the use of words",
+
+"In ‘The Flight to Australia’, the line ‘Tier upon tier it towered, the terrible Apennines’ uses A. alliteration B. litotes C. exaggeration D. parody",
+
+"If we describe Kossoh Town Boy as an autobiography, we mean that it is A. a historical novel B. a piece of writing telling us about the life of its author C. a short story D. a narrative tale",
+
+"The repetition of a consonant sound in quick succession for sound effect is A. Alliteration B. Pun C. Onomatopoeia D. Assonance",
+
+"A play in which the acts succeed one another without probable or necessary sequence is A. Episodic B. Simple C. Linear D. Convoluted",
+
+"A technique by which a previous scene or action can be recalled in a play to shed light on the present action is A. Climax B. Flashback C. Interlude D. Catharsis",
+
+"Criticism is a literary activity which seeks to A. Find faults in a literary work B. Analyze and evaluate a literary work C. Compare and contrast novels D. Discover the beauty of a literary work",
+
+"A situation where an actor addresses the audience without the other actors hearing him is called A. Soliloquy B. Chorus C. Aside D. Solo",
+
+"A poem written in praise of someone or something is an A. Elegy B. Ode C. Sonnet D. Epic",
+
+"The main character in a literary work is the A. Antagonist B. Protagonist C. Foil D. Villain",
+
+"A figure of speech that uses “like” or “as” for comparison is a A. Metaphor B. Simile C. Personification D. Hyperbole",
+
+"The choice of words used by an author is referred to as A. Diction B. Syntax C. Tone D. Mood",
+
+"A play that ends on a happy note is a A. Tragedy B. Comedy C. Tragi-comedy D. Farce",
+
+"The use of a part to represent a whole is A. Synecdoche B. Metonymy C. Oxymoron D. Paradox",
+
+"A poem of fourteen lines with a specific rhyme scheme is a A. Ballad B. Sonnet C. Lyric D. Dirge",
+
+"The central idea or message of a literary work is the A. Plot B. Theme C. Setting D. Conflict",
+
+"A long narrative poem about heroic deeds is an A. Epic B. Elegy C. Ode D. Sonnet",
+
+"The use of exaggerated statements for effect is A. Litotes B. Hyperbole C. Irony D. Sarcasm",
+
+"A literary work that mocks or ridicules human folly is a A. Satire B. Parody C. Fable D. Allegory",
+
+"The time and place where the action of a story occurs is the A. Plot B. Setting C. Atmosphere D. Context",
+
+"A short story with a moral lesson, often involving animals, is a A. Myth B. Legend C. Fable D. Parable",
+
+"The resolution of the conflict in a plot is the A. Climax B. Denouement C. Exposition D. Rising action",
+
+"A figure of speech where human qualities are given to inanimate objects is A. Metaphor B. Personification C. Simile D. Apostrophe",
+
+"A poem written to mourn the dead is an A. Elegy B. Ode C. Sonnet D. Ballad",
+
+"The perspective from which a story is told is the A. Point of view B. Narrative voice C. Authorial intent D. Perspective",
+
+"A direct comparison between two unlike things without using “like” or “as” is a A. Simile B. Metaphor C. Analogy D. Allusion",
+
+"The use of words that imitate the sounds they describe is A. Alliteration B. Onomatopoeia C. Assonance D. Consonance",
+
+"A play characterized by broad humor and improbable situations is a A. Tragedy B. Farce C. Melodrama D. Satire",
+
+"(Based on The Lion and the Jewel) The character who represents tradition is A. Lakunle B. Baroka C. Sidi D. Sadiku",
+
+"(Based on The Lion and the Jewel) Lakunle is a A. Chief B. School teacher C. Wrestler D. Photographer",
+
+"(Based on Look Back in Anger) The protagonist of the play is A. Cliff Lewis B. Jimmy Porter C. Alison Porter D. Helena Charles",
+
+"(Based on Look Back in Anger) Jimmy Porter’s social class is A. Upper class B. Middle class C. Working class D. Aristocracy",
+
+"(Based on Second Class Citizen) The protagonist, Adah, moves from Nigeria to A. USA B. UK C. Canada D. France",
+
+"(Based on Second Class Citizen) The novel explores themes of A. Racism and gender inequality B. War and peace C. Religion and politics D. Science and technology",
+
+"A speech delivered by a character alone on stage is a A. Dialogue B. Monologue C. Soliloquy D. Prologue",
+
+"The introductory part of a play or poem is the A. Epilogue B. Prologue C. Preface D. Foreword",
+
+"A figure of speech that combines contradictory terms is an A. Oxymoron B. Paradox C. Irony D. Pun",
+
+"A reference to a well-known person, place, or event is an A. Allusion B. Illusion C. Allegory D. Analogy",
+
+"The repetition of vowel sounds in a line of poetry is A. Alliteration B. Assonance C. Consonance D. Rhyme",
+
+"A poem that tells a story and is often meant to be sung is a A. Ballad B. Lyric C. Sonnet D. Ode",
+
+"The emotional atmosphere of a literary work is the A. Tone B. Mood C. Style D. Diction",
+
+"A character who provides a contrast to another character is a A. Protagonist B. Antagonist C. Foil D. Stock character",
+
+"The use of symbols to represent ideas or qualities is A. Imagery B. Symbolism C. Allegory D. Metaphor",
+
+"A story where characters and events represent abstract ideas is an A. Allegory B. Fable C. Myth D. Legend",
+
+"The turning point of highest tension in a plot is the A. Exposition B. Climax C. Resolution D. Falling action",
+
+"A play that combines elements of tragedy and comedy is a A. Farce B. Tragi-comedy C. Melodrama D. Satire",
+
+"The use of hints or clues to suggest what will happen later in a story is A. Flashback B. Foreshadowing C. Irony D. Suspense",
+
+"A play intended to be read rather than performed is a A. Closet drama B. Radio play C. Screenplay D. Pantomime",
+
+"The pattern of rhymes at the end of the lines of a poem is the A. Rhythm B. Meter C. Rhyme scheme D. Stanza",
+
+"A group of lines in a poem is a A. Paragraph B. Stanza C. Verse D. Couplet",
+
+"Two consecutive lines of poetry that rhyme are a A. Quatrain B. Sestet C. Couplet D. Octave",
+
+"A poem with no regular meter or rhyme scheme is A. Blank verse B. Free verse C. Haiku D. Limerick",
+
+"Unrhymed iambic pentameter is A. Free verse B. Blank verse C. Heroic couplet D. Terza rima",
+
+"A figure of speech that says the opposite of what is meant for emphasis is A. Sarcasm B. Irony C. Paradox D. Litotes",
+
+"An understatement used for emphasis, often using a negative, is A. Hyperbole B. Litotes C. Euphemism D. Irony",
+
+"The use of a mild or indirect expression for one thought to be harsh is A. Euphemism B. Dysphemism C. Irony D. Sarcasm",
+
+"A play on words that sound alike but have different meanings is a A. Pun B. Paradox C. Oxymoron D. Irony",
+
+"A short, pithy statement expressing a general truth is an A. Aphorism B. Epigram C. Epitaph D. Eulogy",
+
+"(Based on The Lion and the Jewel) Sidi’s beauty is captured in a A. Painting B. Magazine C. Statue D. Song",
+
+"(Based on Look Back in Anger) The “Anger” in the title refers to A. Jimmy’s frustration with society B. Alison’s hatred for Jimmy C. Helena’s jealousy D. Cliff’s resentment",
+
+"(Based on Second Class Citizen) Adah’s husband, Francis, is A. Supportive B. Abusive and lazy C. Wealthy D. A doctor",
+
+"(Based on Unexpected Joy at Dawn) The novel deals with the expulsion of A. Nigerians from Ghana B. Ghanaians from Nigeria C. Both A and B D. None of the above",
+
+"A character who does not change throughout a story is a A. Dynamic character B. Static character C. Round character D. Flat character",
+
+"A character who undergoes a significant internal change is a A. Static character B. Dynamic character C. Stock character D. Foil",
+
+"The struggle between opposing forces in a story is the A. Plot B. Conflict C. Theme D. Setting",
+
+"A type of comedy that relies on physical humor and slapstick is A. High comedy B. Low comedy C. Satire D. Irony",
+
+"The concluding part of a literary work is the A. Prologue B. Epilogue C. Preface D. Introduction",
+
+"The study of the structure and style of poetry is A. Prosody B. Poetics C. Rhetoric D. Linguistics"
+
+];
+
+// Correct option per question (A–D)
+const correctAnswers = [
+"C","C","D","D","D","D","D","B","A","B",
+"C","B","A","A","B","A","A","B","B","C",
+"B","B","B","A","B","A","B","B","A","B",
+"A","B","C","B","B","A","A","B","B","B",
+"B","B","B","C","B","A","C","B","A","A",
+"B","A","B","C","B","A","B","B","B","A",
+"C","B","C","B","B","B","B","A","A","A",
+"B","A","B","C","B","B","B","B","B","A"
+];
+
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+
+  const endTime = new Date();
+
+  let score = 0;
+  let attemptedCount = 0;
+  let overrall = 40;
+
+  // Calculate score first
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+      attemptedCount++;
+
+      if (answers[i] === correctAnswers[i]) {
+        score++;
+      }
+    }
+
+  });
+
+  // Show alert WITH score
+  alert(
+    `RESULT OVERVIEW\n\n` +
+    `Name: ${userName}\n` +
+    `Start: ${formatTime(startTime)}\n` +
+    `End: ${formatTime(endTime)}\n\n` +
+    `Attempted: ${attemptedCount}\n` +
+    `Correct: ${score}\n` +
+    `Score: ${score} / ${overrall}`
+  );
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+
+</script>
+</body>
+</html>
