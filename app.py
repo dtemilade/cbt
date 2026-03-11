@@ -5,20 +5,20 @@ from datetime import datetime
 app = Flask(__name__)
 
 # SQLite DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_history.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///zion.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Database model
 class Attempt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    tel = db.Column(db.Integer, nullable=False)
-    subject = db.Column(db.String(50), nullable=False)
-    score = db.Column(db.Integer, nullable=False)
-    total = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(25))
+    tel = db.Column(db.String(11))
+    subject = db.Column(db.String(50))
+    score = db.Column(db.Integer)
+    total = db.Column(db.Integer)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-
+    
 # Create the table
 with app.app_context():
     db.create_all()
@@ -90,7 +90,7 @@ def subj8():
 def subj9():
     return render_template('subj9.html')
 
-# API endpoint to save attempt after quiz ends
+# API endpoint to save attempt after quiz
 @app.route('/save_attempt', methods=['POST'])
 def save_attempt():
     data = request.json
@@ -104,6 +104,18 @@ def save_attempt():
     db.session.add(attempt)
     db.session.commit()
     return {"status": "success"}
+
+@app.route('/delete_attempt/<int:id>', methods=['DELETE'])
+def delete_attempt(id):
+
+    attempt = Attempt.query.get(id)
+
+    if attempt:
+        db.session.delete(attempt)
+        db.session.commit()
+        return {"success": True}
+
+    return {"success": False}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
