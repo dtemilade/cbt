@@ -23,10 +23,10 @@
                   <p>Beyond practicing — it prepares you for success.</p>
                 </div>
   <div class="top1">
-                  <p></p>
+                  <a style="text-align: right"  target="_blank" href="{{ url_for('admin') }}"><p>ADMIN</p></a>
                 </div>
             </section>
-        <a><h3 style="text-align:center;padding:0.4em; border:2px dashed green">🔔 Update: <span>JAMB</span> past questions are now available for practice. <span>Try them out!</span></h3></a>
+        <a><h3 style="text-align:center;padding:0.4em; border:2px dashed green">🔔 Welcome Users!, choose below your <span>JAMB</span> Past Questions for <span>PRACTISE</span> 🔔🔔 <em> Enter correctly your fullname and phone NUMBER as you attempt the questions. Leaderboard is down to keeptrack your progress. I wish you GOODLUCK!</em></h3></a>
         <label for="subj">Choose a Subject:</label>
         <select name="subj" id="subj" required>
             <option value="subj6">English</option>
@@ -72,7 +72,32 @@
             <li>Stay tuned for more updates.</li>
         </ul>
         </div>
-    </section>        
+    </section>    
+    
+    <section class="main1">
+    <h2 style="text-align:center;">📊 Leaderboard!!! <br> <br> <em> You're doing well!, and you can do better.</em> <br> <br> KEEP trying FOLKS! </h2>
+    <table style="width:100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <thead>
+            <tr style="background-color:#cc000fd1; color:white;">
+                <th>Date</th>
+                <th>Name</th>
+                <th>Subject</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attempt in leaderboard %}
+            <tr>
+                <td>{{ attempt.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ attempt.name }}</td>
+                <td>{{ attempt.subject }}</td>
+                <td>{{ attempt.score }} / {{ attempt.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
     <br><hr>
         <a style="text-align: center" href="#assessment"><p>✅ Ready? Start your assessment now!</p></a>
         

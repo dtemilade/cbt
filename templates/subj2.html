@@ -216,11 +216,27 @@
 
    <script>
 
-let userName = "";
+    
 
-while (!userName || userName.trim() === "") {
-  userName = prompt("Enter your full name (required):");
+let userName = "";
+let phoneNumber = "";
+
+// Prompt for name (max 25 chars)
+while (!userName || userName.trim() === "" || userName.trim().length > 25) {
+  userName = prompt("Enter your full name (required, max 25 characters):");
+  if (userName && userName.trim().length > 25) {
+    alert("Name cannot exceed 25 characters. Please try again.");
+  }
 }
+
+// Prompt for phone number (exactly 11 digits)
+while (!phoneNumber || !/^\d{11}$/.test(phoneNumber)) {
+  phoneNumber = prompt("Enter your phone number (11 digits required):");
+  if (!/^\d{11}$/.test(phoneNumber)) {
+    alert("Phone number must be exactly 11 digits. Please try again.");
+  }
+}
+
 
 
   const tasks = [
@@ -379,36 +395,46 @@ function saveAnswer() {
 }
 
 function showSummary() {
+    const endTime = new Date();
+    let score = 0;
+    let attemptedCount = 0;
+    const totalQuestions = 40;
 
-  const endTime = new Date();
+    tasks.forEach((task, i) => {
+        if (answers[i] !== null) {
+            attemptedCount++;
+            if (answers[i] === correctAnswers[i]) score++;
+        }
+    });
 
-  let score = 0;
-  let attemptedCount = 0;
-  let overrall = 40;
+    alert(
+        `RESULT OVERVIEW\n\n` +
+        `Name: ${userName}\n` +
+        `Attempted: ${attemptedCount}\n` +
+        `Correct: ${score}\n` +
+        `Score: ${score} / ${totalQuestions}`
+    );
 
-  // Calculate score first
-  tasks.forEach((task, i) => {
-
-    if (answers[i] !== null) {
-      attemptedCount++;
-
-      if (answers[i] === correctAnswers[i]) {
-        score++;
-      }
-    }
-
-  });
-
-  // Show alert WITH score
-  alert(
-    `RESULT OVERVIEW\n\n` +
-    `Name: ${userName}\n` +
-    `Start: ${formatTime(startTime)}\n` +
-    `End: ${formatTime(endTime)}\n\n` +
-    `Attempted: ${attemptedCount}\n` +
-    `Correct: ${score}\n` +
-    `Score: ${score} / ${overrall}`
-  );
+    // Save attempt to backend
+    const urlParams = new URLSearchParams(window.location.search);
+    const subjectName = urlParams.get('subj_name') || "Unknown";
+    
+    fetch('/save_attempt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        tel: phoneNumber,
+        subject: subjectName,
+        score: score,
+        total: totalQuestions
+      })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Saved:", data))
+    .catch(error => console.error("Error:", error));
 
   // Then show summary UI
   document.getElementById("assessment").style.display = "none";

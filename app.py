@@ -1,37 +1,58 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 
+# SQLite DB
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_history.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Database model
+class Attempt(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    tel = db.Column(db.Integer, nullable=False)
+    subject = db.Column(db.String(50), nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Create the table
+with app.app_context():
+    db.create_all()
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    leaderboard = Attempt.query.order_by(Attempt.date.desc()).all()
+    return render_template('index.html', leaderboard=leaderboard)
+
+@app.route('/admin')
+def admin():
+    leaderboard = Attempt.query.order_by(Attempt.date.desc()).all()
+    return render_template('admin.html', leaderboard=leaderboard)
 
 @app.route('/start', methods=['POST'])
 def start():
-    subj = request.form.get('subj')
+    subj = request.form.get('subj')  # e.g., 'subj2'
     time = request.form.get('time')
 
-    # query parameter
-    if subj == 'subj1':
-        return redirect(url_for('subj1', time=time))
-    elif subj == 'subj2':
-        return redirect(url_for('subj2', time=time))
-    elif subj == 'subj3':
-        return redirect(url_for('subj3', time=time))
-    elif subj == 'subj4':
-        return redirect(url_for('subj4', time=time))
-    elif subj == 'subj5':
-        return redirect(url_for('subj5', time=time))
-    elif subj == 'subj6':
-        return redirect(url_for('subj6', time=time))
-    elif subj == 'subj7':
-        return redirect(url_for('subj7', time=time))
-    elif subj == 'subj8':
-        return redirect(url_for('subj8', time=time))
-    elif subj == 'subj9':
-        return redirect(url_for('subj9', time=time))
-    else:
-        return "Invalid selection."
+    subjects = {
+        'subj1': 'Chemistry',
+        'subj2': 'Physics',
+        'subj3': 'Economics',
+        'subj4': 'Government',
+        'subj5': 'Mathematics',
+        'subj6': 'English',
+        'subj7': 'Commerce',
+        'subj8': 'Accounting',
+        'subj9': 'Lit-In-English'
+    }
+
+    if subj in subjects:
+        return redirect(url_for(subj, time=time, subj_name=subjects[subj]))
+    return "Invalid selection."
 
 @app.route('/subj1')
 def subj1():
@@ -68,6 +89,21 @@ def subj8():
 @app.route('/subj9')
 def subj9():
     return render_template('subj9.html')
+
+# API endpoint to save attempt after quiz ends
+@app.route('/save_attempt', methods=['POST'])
+def save_attempt():
+    data = request.json
+    name = data.get('name')
+    tel = data.get('tel')
+    subject = data.get('subject')
+    score = data.get('score')
+    total = data.get('total')
+
+    attempt = Attempt(name=name, tel=tel, subject=subject, score=score, total=total)
+    db.session.add(attempt)
+    db.session.commit()
+    return {"status": "success"}
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
