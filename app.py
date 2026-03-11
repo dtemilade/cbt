@@ -1,15 +1,24 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
-# SQLite DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///zion.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# DATABASE CONFIGURATION
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///zion.db"
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
 
-# Database model
+
+# DATABASE MODEL
 class Attempt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25))
@@ -18,24 +27,31 @@ class Attempt(db.Model):
     score = db.Column(db.Integer)
     total = db.Column(db.Integer)
     date = db.Column(db.DateTime, default=datetime.utcnow)
-    
-# Create the table
+
+
+# CREATE TABLES
 with app.app_context():
     db.create_all()
 
+
+# HOME PAGE
 @app.route('/')
 def index():
     leaderboard = Attempt.query.order_by(Attempt.date.desc()).all()
     return render_template('index.html', leaderboard=leaderboard)
 
+
+# ADMIN PAGE
 @app.route('/admin')
 def admin():
     leaderboard = Attempt.query.order_by(Attempt.date.desc()).all()
     return render_template('admin.html', leaderboard=leaderboard)
 
+
+# SUBJECT SELECTION
 @app.route('/start', methods=['POST'])
 def start():
-    subj = request.form.get('subj')  # e.g., 'subj2'
+    subj = request.form.get('subj')
     time = request.form.get('time')
 
     subjects = {
@@ -52,8 +68,11 @@ def start():
 
     if subj in subjects:
         return redirect(url_for(subj, time=time, subj_name=subjects[subj]))
+
     return "Invalid selection."
 
+
+# SUBJECT ROUTES
 @app.route('/subj1')
 def subj1():
     return render_template('subj1.html')
@@ -90,21 +109,34 @@ def subj8():
 def subj9():
     return render_template('subj9.html')
 
-# API endpoint to save attempt after quiz
+
+# SAVE QUIZ ATTEMPT
 @app.route('/save_attempt', methods=['POST'])
 def save_attempt():
+
     data = request.json
+
     name = data.get('name')
     tel = data.get('tel')
     subject = data.get('subject')
     score = data.get('score')
     total = data.get('total')
 
-    attempt = Attempt(name=name, tel=tel, subject=subject, score=score, total=total)
+    attempt = Attempt(
+        name=name,
+        tel=tel,
+        subject=subject,
+        score=score,
+        total=total
+    )
+
     db.session.add(attempt)
     db.session.commit()
-    return {"status": "success"}
 
+    return jsonify({"status": "success"})
+
+
+# DELETE ATTEMPT
 @app.route('/delete_attempt/<int:id>', methods=['DELETE'])
 def delete_attempt(id):
 
@@ -113,9 +145,11 @@ def delete_attempt(id):
     if attempt:
         db.session.delete(attempt)
         db.session.commit()
-        return {"success": True}
+        return jsonify({"success": True})
 
-    return {"success": False}
+    return jsonify({"success": False})
 
+
+# LOCAL RUN
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
