@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>C.R.S - JAMB QUIZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="JAMB, SUCCESS, ANSWER, PAST-QUESTIONS, QUESTION, SOLUTION">
+<link rel="icon" href="../static/images/logo.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      background-color: #d80b0b;
+      color: white;
+      text-align: center;
+      padding: 10px 10px;
+      position: relative;
+    }
+
+    #student{
+      display: none;
+    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-top: 1rem;
+          font-size: 1rem;
+          padding: 0.5rem;
+      }
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #d80b0b;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .buttons label {
+      font-size: 30px;
+      color: #d80b0b;
+    }
+    button {
+      font-size: 20px;
+      padding: 0.6rem 1rem;
+      background-color: #d80b0b;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+    }
+     .retry-btn {
+      position: fixed;
+      right: 30px;
+      bottom: 30px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background-color: #d80b0b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+      .summary-box {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #fff;
+          border-radius: 8px;
+          padding: 1rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 1rem;
+      }
+
+      th, td {
+          padding: 0.5rem;
+          border: 1px solid #ccc;
+          text-align: center;
+      }
+
+      .correct {
+          color: green;
+          font-weight: bold;
+      }
+
+      .incorrect {
+          color: red;
+          font-weight: bold;
+      }
+
+      .review {
+          color: orange;
+          font-weight: bold;
+      }
+
+      .pending {
+          color: #777;
+          font-style: italic;
+      }
+
+    #timer {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #d80b0b;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 1.2rem;
+    }
+
+    @media screen and (max-width:700px){
+    .question-box {
+      background: #fff;
+      padding: 0 1rem 1rem;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .question-number {
+      display: none;
+      font-weight: bold;
+      color: #d80b0b;
+    }
+    .buttons {
+      margin-top: 0.5em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .buttons label {
+      font-size: 1em;
+      color: #d80b0b;
+    }
+    button {
+      font-size: 0.6em;
+      padding: 0.3em 0.3em;
+      background-color: #d80b0b;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+}
+  </style>
+</head>
+<body>
+
+    <div id="timer"></div>
+
+    <form id="assessment">
+        <div class="question-box">
+            <h1 style="font-size: 0.8em">C.R.S - JAMB QUIZ</h1>
+            <div class="question-number" id="questionNumber"> </div>
+            <div class="question-text" id="questionText">Loading...</div>
+            <div class="buttons">
+                <button type="button" id="prevBtn">Previous</button>
+                <label><input type="radio" name="answer" value="A"> A</label><br>
+                <label><input type="radio" name="answer" value="B"> B</label><br>
+                <label><input type="radio" name="answer" value="C"> C</label><br>
+                <label><input type="radio" name="answer" value="D"> D</label>
+                <button type="button" id="nextBtn">Next</button>
+                <button type="submit" id="submitBtn">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+        <button class="retry-btn" id="retryBtn">Go Home</button>
+        <h2>Quiz Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding: 0 5px">Question</th>
+                    <th>Your Answer</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+    <div id="student">
+        <label for="userName">Name:</label><br>
+        <input type="text" id="userName" name="userName" required><br><br>
+    </div>
+
+   <script>
+
+
+let userName = "";
+let phoneNumber = "";
+
+// Prompt for name (max 25 chars)
+while (!userName || userName.trim() === "" || userName.trim().length > 25) {
+  userName = prompt("Enter your full name (required, max 25 characters):");
+  if (userName && userName.trim().length > 25) {
+    alert("Name cannot exceed 25 characters. Please try again.");
+  }
+}
+
+// Prompt for phone number (exactly 11 digits)
+while (!phoneNumber || !/^\d{11}$/.test(phoneNumber)) {
+  phoneNumber = prompt("Enter your phone number (11 digits required):");
+  if (!/^\d{11}$/.test(phoneNumber)) {
+    alert("Phone number must be exactly 11 digits. Please try again.");
+  }
+}
+
+const tasks = [
+
+"Whose sons treated the offering of the Lord with contempt? A. Saul B. Samuel C. David D. Eli",
+
+"Daniel was cast into the den of lions because he: A. hid to pray to God B. was a foreigner C. was a criminal D. was disloyal to the king",
+
+"Moses took the bones of Joseph during the exodus because: A. Joseph was their first king B. it was their custom to carry all bones C. Joseph had sworn that they should carry the bones D. the bones were so precious to the Israelites",
+
+"The team that Cornelius sent to bring Peter from Joppa consist of: A. 2 servants and 2 soldiers B. 1 servant and 2 soldiers C. 2 servants and 1 soldier D. 3 servants and 2 soldiers",
+
+"The three disciples that witnessed the Transfiguration of Jesus were: A. Andrew, James and John B. Peter, James and John C. Andrew, Peter and John D. Peter, James and Matthew",
+
+"The Babylonian Exile was a consequence of: A. The division of the kingdom into Israel and Judah B. The Israelites’ disobedience to God and their social injustices C. The Israelites’ refusal to pay tribute to Babylon D. The Assyrian invasion and destruction of Jerusalem",
+
+"Which prophet confronted King Ahab and challenged the prophets of Baal on Mount Carmel? A. Isaiah B. Elijah C. Ezekiel D. Jeremiah",
+
+"Which prophet warned the people of Nineveh about God’s impending judgment? A. Micah B. Jonah C. Amos D. Nahum",
+
+"The downfall of the Northern Kingdom of Israel was mainly due to: A. Invasion by the Philistines B. Division and infighting among tribes C. The rise of powerful neighboring kingdoms D. Rejection of the Mosaic Law",
+
+"The Book of Lamentations is traditionally attributed to which prophet? A. Ezekiel B. Amos C. Daniel D. Jeremiah",
+
+"Who was the first king of Israel? A. David B. Solomon C. Saul D. Samuel",
+
+"The Ten Commandments were given to Moses on Mount: A. Nebo B. Sinai C. Carmel D. Olives",
+
+"Who was the successor of Moses? A. Caleb B. Joshua C. Aaron D. Eleazar",
+
+"The parable of the Good Samaritan was told to illustrate: A. The importance of prayer B. Who one’s neighbor is C. The danger of wealth D. The need for forgiveness",
+
+"Who betrayed Jesus for thirty pieces of silver? A. Peter B. James C. Judas Iscariot D. Thomas",
+
+"The first martyr of the Christian church was: A. Peter B. Paul C. Stephen D. James",
+
+"On the day of Pentecost, the Holy Spirit descended on the disciples in the form of: A. A dove B. Tongues of fire C. A cloud D. A rushing wind",
+
+"Who was the mother of Samuel? A. Hannah B. Peninnah C. Rachel D. Leah",
+
+"The story of the creation of the world is found in the book of: A. Exodus B. Leviticus C. Genesis D. Numbers",
+
+"Who was the giant Philistine defeated by David? A. Saul B. Goliath C. Absalom D. Jonathan",
+
+"The wisdom of Solomon was demonstrated in his judgment between: A. Two kings B. Two brothers C. Two harlots D. Two priests",
+
+"Who was the prophet that succeeded Elijah? A. Elisha B. Isaiah C. Amos D. Hosea",
+
+"The city where Jesus was born is: A. Nazareth B. Jerusalem C. Bethlehem D. Jericho",
+
+"Who was the tax collector that climbed a sycamore tree to see Jesus? A. Matthew B. Zacchaeus C. Peter D. Andrew",
+
+"The miracle of turning water into wine took place at: A. Capernaum B. Cana C. Bethany D. Nain",
+
+"Who was the Roman governor who sentenced Jesus to be crucified? A. Herod B. Pilate C. Felix D. Festus",
+
+"The Great Commission was given by Jesus to his disciples on a mountain in: A. Judea B. Samaria C. Galilee D. Perea",
+
+"Who was the apostle to the Gentiles? A. Peter B. James C. Paul D. John",
+
+"The fruit of the Spirit is mentioned in the book of: A. Romans B. Corinthians C. Galatians D. Ephesians",
+
+"Who was the king of Babylon who destroyed Jerusalem? A. Cyrus B. Darius C. Nebuchadnezzar D. Xerxes",
+
+"The rainbow was a sign of God’s covenant with: A. Abraham B. Noah C. Moses D. David",
+
+"Who was the wife of Isaac? A. Sarah B. Rebekah C. Rachel D. Leah",
+
+"The son of Abraham through Hagar was: A. Isaac B. Ishmael C. Jacob D. Esau",
+
+"Who was the prophet who was swallowed by a great fish? A. Daniel B. Jonah C. Amos D. Micah",
+
+"The wall of Jericho fell after the Israelites marched around it for: A. Three days B. Seven days C. Twelve days D. Forty days",
+
+"Who was the female judge of Israel? A. Ruth B. Esther C. Deborah D. Naomi",
+
+"The strength of Samson was in his: A. Arms B. Legs C. Hair D. Eyes",
+
+"Who was the king who sought to kill the baby Jesus? A. Herod the Great B. Herod Antipas C. Herod Agrippa D. Philip",
+
+"The sermon on the mount begins with the: A. Parables B. Beatitudes C. Miracles D. Commandments",
+
+"Who was the disciple who doubted the resurrection of Jesus? A. Peter B. Thomas C. Philip D. Bartholomew",
+
+"The place where Jesus was crucified is called: A. Gethsemane B. Golgotha C. Gabbatha D. Bethesda",
+
+"Who was the first person to see the risen Jesus? A. Peter B. John C. Mary Magdalene D. Mother Mary",
+
+"The book of Acts was written by: A. Peter B. Paul C. Luke D. John",
+
+"Who was the companion of Paul on his first missionary journey? A. Silas B. Barnabas C. Timothy D. Titus",
+
+"The vision of the sheet with clean and unclean animals was seen by: A. Paul B. Peter C. Stephen D. Philip",
+
+"Who was the king of Israel who built the temple in Jerusalem? A. David B. Solomon C. Rehoboam D. Hezekiah",
+
+"The prophet who predicted the birth of Jesus from a virgin was: A. Jeremiah B. Ezekiel C. Isaiah D. Daniel",
+
+"Who was the king of Persia who allowed the Jews to return to Jerusalem? A. Cyrus B. Darius C. Artaxerxes D. Xerxes",
+
+"The leader of the return from exile to rebuild the temple was: A. Ezra B. Nehemiah C. Zerubbabel D. Joshua",
+
+"Who was the cupbearer to the king who rebuilt the walls of Jerusalem? A. Ezra B. Nehemiah C. Haggai D. Zechariah",
+
+"The primary purpose of the law according to Paul is to: A. Save people B. Make people holy C. Reveal sin D. Establish a kingdom",
+
+"Who was the husband of Ruth? A. Boaz B. Mahlon C. Chilion D. Elimelech",
+
+"The son of David who rebelled against him was: A. Solomon B. Adonijah C. Absalom D. Amnon",
+
+"Who was the prophet who rebuked David for his sin with Bathsheba? A. Samuel B. Nathan C. Gad D. Ahijah",
+
+"The queen of Sheba visited Solomon to test his: A. Wealth B. Power C. Wisdom D. Beauty",
+
+"Who was the king of Israel who did more evil in the eyes of the Lord than any before him? A. Saul B. Jeroboam C. Ahab D. Jehu",
+
+"The prophet who was taken to heaven in a whirlwind was: A. Elijah B. Elisha C. Enoch D. Moses",
+
+"Who was the king of Judah who was miraculously healed and given 15 more years to live? A. Josiah B. Hezekiah C. Uzziah D. Manasseh",
+
+"The weeping prophet is a title given to: A. Ezekiel B. Jeremiah C. Daniel D. Hosea",
+
+"Who was the prophet who married a harlot to illustrate God’s love for Israel? A. Amos B. Hosea C. Joel D. Obadiah",
+
+"The valley of dry bones vision was seen by: A. Isaiah B. Jeremiah C. Ezekiel D. Daniel",
+
+"Who were the three Hebrew boys thrown into the fiery furnace? A. Shadrach, Meshach, and Abednego B. Peter, James, and John C. Paul, Silas, and Timothy D. Ezra, Nehemiah, and Zerubbabel",
+
+"The writing on the wall at Belshazzar’s feast was interpreted by: A. Ezekiel B. Daniel C. Jeremiah D. Zechariah",
+
+"Who was the forerunner of Jesus? A. Elijah B. John the Baptist C. Malachi D. Gabriel",
+
+"The angel who announced the birth of Jesus to Mary was: A. Michael B. Gabriel C. Raphael D. Uriel",
+
+"The hometown of Jesus was: A. Bethlehem B. Jerusalem C. Nazareth D. Capernaum",
+
+"The first miracle of Jesus was: A. Healing a leper B. Raising Lazarus C. Turning water into wine D. Walking on water",
+
+"The number of disciples Jesus chose was: A. Seven B. Ten C. Twelve D. Seventy",
+
+"The prayer Jesus taught his disciples is known as: A. The Apostles’ Creed B. The Lord’s Prayer C. The Magnificat D. The Benedictus",
+
+"The transfiguration took place on a: A. Mountain B. Valley C. Sea D. Desert",
+
+"The triumphal entry of Jesus into Jerusalem is celebrated as: A. Good Friday B. Easter Sunday C. Palm Sunday D. Pentecost",
+
+"The last supper was a celebration of the: A. Passover B. Pentecost C. Tabernacles D. Purim",
+
+"The garden where Jesus prayed before his arrest was: A. Eden B. Gethsemane C. Sharon D. Carmel",
+
+"The inscription on the cross of Jesus was: A. King of the Jews B. Son of God C. Savior of the World D. Prophet of Nazareth",
+
+"The resurrection of Jesus took place on the: A. First day of the week B. Seventh day of the week C. Day of Atonement D. Feast of Trumpets",
+
+"The ascension of Jesus took place from the: A. Mount of Olives B. Mount Sinai C. Mount Carmel D. Mount Nebo",
+
+"The book of Revelation was written by: A. Paul B. Peter C. John D. Jude",
+
+"The new heaven and new earth is described in the book of: A. Genesis B. Isaiah C. Ezekiel D. Revelation",
+
+"The armor of God is described in the book of: A. Romans B. Corinthians C. Ephesians D. Philippians",
+
+"The hall of faith is found in the book of: A. Romans B. Hebrews C. James D. Peter"
+
+];
+
+// Correct option per question (A–D)
+const correctAnswers = [
+"D","A","C","C","B","B","B","B","D","D",
+"C","B","B","B","C","C","B","A","C","B",
+"C","A","C","B","B","B","C","C","C","C",
+"B","B","B","B","B","C","C","A","B","B",
+"B","C","C","B","B","B","C","A","C","B",
+"C","A","C","B","C","C","A","B","B","B",
+"C","A","B","B","B","C","C","C","B","A",
+"C","A","B","A","A","A","C","D","C","B"
+];
+// Shuffle Questions
+let shuffledIndexes = [...Array(tasks.length).keys()]
+  .sort(() => Math.random() - 0.5);
+
+const answers = Array(tasks.length).fill(null);
+const status = Array(tasks.length).fill("pending");
+
+let currentIndex = 0;
+
+const questionNumber = document.getElementById("questionNumber");
+const questionText = document.getElementById("questionText");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+const summaryBox = document.getElementById("summaryBox");
+const summaryTableBody = document.getElementById("summaryTableBody");
+
+const startTime = new Date();
+
+function formatTime(date) {
+  return date.toLocaleTimeString();
+}
+
+function loadQuestion(index) {
+
+  const realIndex = shuffledIndexes[index];
+
+  questionNumber.textContent = `Task ${realIndex + 1}`;
+  questionText.textContent = tasks[realIndex];
+
+  // restore selected answer
+  document.querySelectorAll('input[name="answer"]').forEach(option => {
+    option.checked = answers[realIndex] === option.value;
+  });
+
+  // Counter display on buttons
+  prevBtn.textContent = index > 0 ? `Previous (${index})` : "Previous";
+  nextBtn.textContent = index < tasks.length - 1 ? `Next (${index + 2})` : "Next";
+
+  // Disable prev button at the start
+  prevBtn.disabled = index === 0;
+
+  // Hide next button at the last index, else keep it flex
+  if (index === 40 - 1) {
+    nextBtn.style.display = 'none'; // hide next button
+  } else {
+    nextBtn.style.display = 'flex'; // show next button
+  }
+}
+
+function saveAnswer() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (selected) {
+    const realIndex = shuffledIndexes[currentIndex];
+    answers[realIndex] = selected.value;
+  }
+}
+
+function showSummary() {
+    const endTime = new Date();
+    let score = 0;
+    let attemptedCount = 0;
+    const totalQuestions = 40;
+
+    tasks.forEach((task, i) => {
+        if (answers[i] !== null) {
+            attemptedCount++;
+            if (answers[i] === correctAnswers[i]) score++;
+        }
+    });
+
+    alert(
+        `RESULT OVERVIEW\n\n` +
+        `Name: ${userName}\n` +
+        `Attempted: ${attemptedCount}\n` +
+        `Correct: ${score}\n` +
+        `Score: ${score} / ${totalQuestions}`
+    );
+
+    // Save attempt to backend
+    const urlParams = new URLSearchParams(window.location.search);
+    const subjectName = urlParams.get('subj_name') || "Unknown";
+    
+    fetch('/save_attempt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: userName,
+        tel: phoneNumber,
+        subject: subjectName,
+        score: score,
+        total: totalQuestions
+      })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Saved:", data))
+    .catch(error => console.error("Error:", error));
+
+  // Then show summary UI
+  document.getElementById("assessment").style.display = "none";
+  summaryBox.style.display = "block";
+  summaryTableBody.innerHTML = "";
+  retryBtn.style.display = "block";
+
+  // Build summary table
+  tasks.forEach((task, i) => {
+
+    if (answers[i] !== null) {
+
+      let result = "incorrect";
+
+      if (answers[i] === correctAnswers[i]) {
+        result = "correct";
+      }
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${tasks[i]}</td>
+        <td>${answers[i]}</td>
+        <td class="${result}">${result}</td>
+      `;
+      summaryTableBody.appendChild(row);
+    }
+
+  });
+
+}
+
+// Button Actions
+
+prevBtn.onclick = () => {
+  if (currentIndex > 0) {
+    saveAnswer();
+    currentIndex--;
+    loadQuestion(currentIndex);
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentIndex < tasks.length - 1) {
+    saveAnswer();
+    currentIndex++;
+    loadQuestion(currentIndex);
+  }
+};
+
+document.getElementById("assessment").onsubmit = (e) => {
+  e.preventDefault();
+  clearInterval(timerInterval);
+  saveAnswer();
+  showSummary();
+};
+
+retryBtn.onclick = () => {
+  window.location.href = "/";
+};
+
+// Timer
+const urlParams = new URLSearchParams(window.location.search);
+let minutes = parseInt(urlParams.get('time')) || 40;
+let timeLeft = minutes * 60;
+
+const timerDisplay = document.getElementById("timer");
+
+const timerInterval = setInterval(() => {
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  timerDisplay.textContent =
+    `${mins}:${secs.toString().padStart(2,'0')}`;
+
+  if (--timeLeft < 0) {
+    clearInterval(timerInterval);
+    document.getElementById("assessment").requestSubmit();
+  }
+
+}, 1000);
+
+// Save option when clicked
+document.querySelectorAll('input[name="answer"]').forEach(option => {
+  option.addEventListener("change", saveAnswer);
+});
+
+loadQuestion(currentIndex);
+// Detect tab switching
+let tabSwitchCount = 0;
+let maxSwitchAllowed = 2; // change if you want more chances
+
+document.addEventListener("visibilitychange", function () {
+
+  if (document.hidden) {
+
+    tabSwitchCount++;
+
+    if (tabSwitchCount >= maxSwitchAllowed) {
+      clearInterval(timerInterval);
+      document.getElementById("assessment").requestSubmit();
+    } else {
+      alert("Warning! Do not switch tabs during the test.");
+    }
+
+  }
+
+});
+</script>
+</body>
+</html>

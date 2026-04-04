@@ -63,7 +63,8 @@ def start():
         'subj6': 'English',
         'subj7': 'Commerce',
         'subj8': 'Accounting',
-        'subj9': 'Lit-In-English'
+        'subj9': 'Lit-In-English',
+        'subj10': 'C.R.S'
     }
 
     if subj in subjects:
@@ -109,6 +110,9 @@ def subj8():
 def subj9():
     return render_template('subj9.html')
 
+@app.route('/subj10')
+def subj10():
+    return render_template('subj10.html')
 
 # SAVE QUIZ ATTEMPT
 @app.route('/save_attempt', methods=['POST'])
