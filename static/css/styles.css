@@ -184,3 +184,30 @@ form {
 
 
 }
+
+
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.subject-grid label {
+  background: #f2f2f2;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+.subject-grid input {
+  margin-right: 8px;
+}
+
+.subject-grid label:hover {
+  background: #e6ffe6;
+  border-color: green;
+}
+
